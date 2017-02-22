@@ -1,9 +1,11 @@
 package eu.bcvsolutions.forest.index.repository;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -37,13 +39,19 @@ public interface BaseForestContentRepository<C extends ForestContent<C, ?, CONTE
 	 * Finds all children for given parent r
 	 * ecursively by forest index
 	 * 
-	 * @param parent
+	 * @param parentContent
 	 * @param pageable
 	 * @return
 	 */
 	@Query("select e from #{#entityName} e join e.forestIndex i where i.forestTreeType = ?#{[0].forestTreeType} and i.lft BETWEEN ?#{[0].forestIndex.lft + 1} and ?#{[0].forestIndex.rgt - 1}") // todo: possible null pointers
-	Page<C> findAllChildren(C parent, Pageable pageable);
+	Page<C> findAllChildren(C parentContent, Pageable pageable);
 	
-	
-	// TODO: find all parents
+	/**
+	 * Returns all content parents
+	 * 
+	 * @param content
+	 * @return
+	 */
+	@Query("select e from #{#entityName} e join e.forestIndex i where i.forestTreeType = ?#{[0].forestTreeType} and i.lft < ?#{[0].forestIndex.lft} and i.rgt > ?#{[0].forestIndex.rgt}") // todo: possible null pointers
+	List<C> findAllParents(C content, Sort sort);
 }

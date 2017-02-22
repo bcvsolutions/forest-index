@@ -13,6 +13,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -258,6 +260,18 @@ public class DefaultNodeContentServiceTest {
 			children.remove(child);
 		}
 		return counter;		
+	}
+	
+	@Test
+	public void testFindAllParents() {
+		testFindByForestIndex();
+		
+		assertEquals(8, repository.count());
+		
+		List<NodeContent> parents = service.findAllParents(bb, new Sort(Direction.DESC, "forestIndex.lft"));
+		assertEquals(3, parents.size());
+		NodeContent root = service.findRoot(ForestIndex.DEFAULT_TREE_TYPE);
+		assertEquals(root.getId(), parents.get(2).getId());
 	}
 	
 	/**

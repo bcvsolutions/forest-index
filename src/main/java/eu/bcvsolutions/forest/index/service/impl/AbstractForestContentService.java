@@ -1,10 +1,12 @@
 package eu.bcvsolutions.forest.index.service.impl;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -115,4 +117,12 @@ public abstract class AbstractForestContentService<C extends ForestContent<C, IX
 	public Page<C> findAllChildren(C parent, Pageable pageable) {
 		return repository.findAllChildren(parent, pageable);
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<C> findAllParents(C content, Sort sort) {
+		return repository.findAllParents(content, sort);
+	}
+	
+	
 }

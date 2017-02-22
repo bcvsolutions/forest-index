@@ -1,10 +1,12 @@
 package eu.bcvsolutions.forest.index.service.api;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.CrudRepository;
 
 import eu.bcvsolutions.forest.index.domain.ForestContent;
@@ -92,5 +94,13 @@ public interface ForestContentService<C extends ForestContent<C, IX, CONTENT_ID>
 	 * @return
 	 */
 	Page<C> findAllChildren(C parent, Pageable pageable);
+	
+	/**
+	 * Returns all content parents
+	 * 
+	 * @param content
+	 * @return
+	 */
+	List<C> findAllParents(C content, Sort sort);
 
 }
