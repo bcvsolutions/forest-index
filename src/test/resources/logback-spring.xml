@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- https://springframework.guru/using-logback-spring-boot/ -->
+<!-- http://logback.qos.ch/manual/appenders.html -->
+<configuration>
+	<include resource="org/springframework/boot/logging/logback/base.xml"/>
+	
+	<springProperty name="spring.profiles.active" source="spring.profiles.active"/>
+	
+	<springProfile name="default">
+        <logger name="cz.rt" level="DEBUG"/>
+		<logger name="org.springframework" level="INFO"/>
+		<logger name="org.springframework.web" level="DEBUG"/>
+		<logger name="org.hibernate.SQL" level="INFO"/>
+		<logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="INFO"/>
+    </springProfile>
+
+</configuration>
