@@ -13,7 +13,6 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.forest.index.domain.ForestContent;
 import eu.bcvsolutions.forest.index.domain.ForestIndex;
 import eu.bcvsolutions.forest.index.repository.ForestIndexRepository;
-import eu.bcvsolutions.forest.index.service.api.ForestContentService;
 import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
 
 /**
@@ -50,7 +49,7 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 		if (root == null) {
 			return;
 		}
-		recountIndexes(index(root));
+		recountIndexes(countIndex(root));
 		
 	}
 	
@@ -63,7 +62,7 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 		Assert.notNull(parent);
 		//
 		repository.findDirectChildren(parent).forEach(forestIndex -> {
-			recountIndexes(index(forestIndex));
+			recountIndexes(countIndex(forestIndex));
 		});
 	}
 	
@@ -94,7 +93,7 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 		forestIndex = repository.save(forestIndex);
 		if (!parentChange) {
 			// index new node only
-			return index(forestIndex);
+			return countIndex(forestIndex);
 		} else { // index node, it parent changes
 			// drop moved sub tree indexes 
 			if (lft != null && rgt != null) {
@@ -102,12 +101,12 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 				repository.afterDelete(forestIndex.getForestTreeType(), lft, rgt);
 			}
 			// create new indexes
-			recountIndexes(index(forestIndex));
+			recountIndexes(countIndex(forestIndex));
 		}
 		return forestIndex;
 	}
 	
-	private IX index(IX forestIndex) {
+	private IX countIndex(IX forestIndex) {
 		Assert.notNull(forestIndex);
 		Assert.notNull(forestIndex.getId());
 		//
@@ -156,15 +155,7 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 	
 	@Override
 	@Transactional
-	public <C extends ForestContent<C, IX, CONTENT_ID>> C index(ForestContentService<C, IX, CONTENT_ID> contentService, C content) {
-		// insert new parent parent
-		if (content.getParent() == null) {
-			C previousRoot = contentService.findPreviousRoot(content.getForestTreeType(), content.getId());
-			if (previousRoot != null) {
-				previousRoot.setParent(content);
-				contentService.getRepository().save(previousRoot); // save only
-			}
-		}		
+	public <C extends ForestContent<C, IX, CONTENT_ID>> C index(C content) {
 		// previous index
 		IX index = content.getForestIndex();
 		// get parent index
@@ -173,7 +164,19 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 			parentIndex = content.getParent().getForestIndex();
 			if (parentIndex == null) {
 				// reindex parent recursively
-				parentIndex = index(contentService, content.getParent()).getForestIndex();
+				parentIndex = index(content.getParent()).getForestIndex();
+			}
+		} else {
+			// generate syntetic root - we want to support more content roots
+			parentIndex = repository.findRoot(content.getForestTreeType());
+			if (parentIndex == null) {
+				try {
+					parentIndex = indexClass.newInstance();
+					parentIndex.setForestTreeType(content.getForestTreeType());
+					parentIndex = this.saveNode(parentIndex);
+				} catch (InstantiationException | IllegalAccessException o_O) {
+					throw new IllegalArgumentException(MessageFormat.format("[{0}] does not support creating new instance. Fix forest index class - add default constructor.", indexClass), o_O);
+				}
 			}
 		}
 		//

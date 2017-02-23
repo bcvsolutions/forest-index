@@ -56,11 +56,10 @@ public interface ForestIndexService<IX extends ForestIndex<IX, CONTENT_ID>, CONT
 	/**
 	 * Creates or updates index for given content.
 	 * 
-	 * @param contentService
 	 * @param content
 	 * @return
 	 */
-	<C extends ForestContent<C, IX, CONTENT_ID>> C index(ForestContentService<C, IX, CONTENT_ID> contentService, C content);
+	<C extends ForestContent<C, IX, CONTENT_ID>> C index(C content);
 	
 	/**
 	 * Drops index for given content.

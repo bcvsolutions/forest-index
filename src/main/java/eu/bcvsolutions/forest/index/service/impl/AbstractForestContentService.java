@@ -43,23 +43,15 @@ public abstract class AbstractForestContentService<C extends ForestContent<C, IX
 		this.forestIndexService = forestIndexService;
 		this.repository = repository;
 	}
-	
-	@Override
-	public TypeableForestContentRepository<C, CONTENT_ID> getRepository() {
-		return repository;
-	}
 
 	@Override
 	public void rebuildIndexes(String forestTreeType) {
 		// clear all rgt, lft
 		forestIndexService.dropIndexes(forestTreeType);
 		//
-		C root = findRoot(forestTreeType);
-		if (root == null) {
-			return;
-		}
-		//
-		recountIndexes(createIndex(root));
+		findRoots(forestTreeType, null).forEach(root -> {
+			recountIndexes(createIndex(root));
+		});
 	}
 
 	/**
@@ -79,13 +71,13 @@ public abstract class AbstractForestContentService<C extends ForestContent<C, IX
 	@Override
 	@Transactional
 	public C createIndex(C content) {
-		return forestIndexService.index(this, content);
+		return forestIndexService.index(content);
 	}
 	
 	@Override
 	@Transactional
 	public C updateIndex(C content) {
-		return forestIndexService.index(this, content);
+		return forestIndexService.index(content);
 	}
 	
 	@Override
@@ -96,14 +88,8 @@ public abstract class AbstractForestContentService<C extends ForestContent<C, IX
 
 	@Override
 	@Transactional(readOnly = true)
-	public C findRoot(String forestTreeType) {
-		return repository.findRoot(forestTreeType);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public C findPreviousRoot(String forestTreeType, CONTENT_ID newParentId) {
-		return repository.findPreviousRoot(forestTreeType, newParentId);
+	public Page<C> findRoots(String forestTreeType, Pageable pageable) {
+		return repository.findRoots(forestTreeType, pageable);
 	}
 
 	@Override

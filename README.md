@@ -7,6 +7,7 @@ Features:
 * Get all tree node parents in "one select".
 
 Implemented operations with content and index:
+* creates "syntetic" index root when content is inexed => supports more content roots (forest index requires one root, but indexed content could have more roots).
 * create index when content is created
 * drop indexes, when content is deleted
 * update index, when content is moved in tree structure => when content parent is changed, then index is recounted. Its implemented by "drop and created" and can be improved in future
@@ -14,6 +15,7 @@ Implemented operations with content and index:
 
 Unimplemented operations:
 * lock tree type, when index building is in progress.
+* direct children order
 
 Build on spring boot, spring data and hibernate.
 

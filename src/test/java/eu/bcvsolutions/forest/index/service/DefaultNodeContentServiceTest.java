@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -57,23 +58,30 @@ public class DefaultNodeContentServiceTest {
 	}
 	
 	@Test
-	public void testSaveTreeRoot() {
+	public void testSaveTreeRoots() {
 		NodeContent root = service.save(new NodeContent(null, "root"));
 		//
 		assertNotNull(root);
 		assertNotNull(root.getForestIndex());
-		assertEquals(1L, root.getForestIndex().getLft().longValue());
-		assertEquals(2L, root.getForestIndex().getRgt().longValue());
-		//
-		// save new root 
-		NodeContent newRoot = service.save(new NodeContent(null, "root two"));
-		assertEquals(1L, newRoot.getForestIndex().getLft().longValue());
-		assertEquals(4L, newRoot.getForestIndex().getRgt().longValue());
-		//
-		root = repository.findOne(root.getId());
-		assertEquals(newRoot.getId(), root.getParent().getId());
 		assertEquals(2L, root.getForestIndex().getLft().longValue());
 		assertEquals(3L, root.getForestIndex().getRgt().longValue());
+		//
+		// save another root 
+		NodeContent anotherRoot = service.save(new NodeContent(null, "root two"));
+		assertEquals(4L, anotherRoot.getForestIndex().getLft().longValue());
+		assertEquals(5L, anotherRoot.getForestIndex().getRgt().longValue());
+		//
+		root = repository.findOne(root.getId());
+		assertEquals(2L, root.getForestIndex().getLft().longValue());
+		assertEquals(3L, root.getForestIndex().getRgt().longValue());
+		//
+		// save root child
+		NodeContent rootChild = service.save(new NodeContent(root, "root sub"));
+		assertEquals(3L, rootChild.getForestIndex().getLft().longValue());
+		assertEquals(4L, rootChild.getForestIndex().getRgt().longValue());
+		root = repository.findOne(root.getId());
+		assertEquals(2L, root.getForestIndex().getLft().longValue());
+		assertEquals(5L, root.getForestIndex().getRgt().longValue());
 	}
 	
 	@Test
@@ -85,59 +93,60 @@ public class DefaultNodeContentServiceTest {
 		//
 		assertNotNull(rootOne);
 		assertNotNull(rootOne.getForestIndex());
-		assertEquals(1L, rootOne.getForestIndex().getLft().longValue());
-		assertEquals(2L, rootOne.getForestIndex().getRgt().longValue());
-		//
-		// save new root 
-		NodeContent newRootOne = service.save(new NodeContent(TYPE_ONE, null, "root two"));
-		assertEquals(1L, newRootOne.getForestIndex().getLft().longValue());
-		assertEquals(4L, newRootOne.getForestIndex().getRgt().longValue());
-		//
-		rootOne = repository.findOne(rootOne.getId());
-		assertEquals(newRootOne.getId(), rootOne.getParent().getId());
 		assertEquals(2L, rootOne.getForestIndex().getLft().longValue());
 		assertEquals(3L, rootOne.getForestIndex().getRgt().longValue());
+		//
+		// save root child
+		NodeContent childRootOne = service.save(new NodeContent(TYPE_ONE, rootOne, "root two"));
+		assertEquals(3L, childRootOne.getForestIndex().getLft().longValue());
+		assertEquals(4L, childRootOne.getForestIndex().getRgt().longValue());
+		//
+		rootOne = repository.findOne(rootOne.getId());
+		assertEquals(rootOne.getId(), childRootOne.getParent().getId());
+		assertEquals(2L, rootOne.getForestIndex().getLft().longValue());
+		assertEquals(5L, rootOne.getForestIndex().getRgt().longValue());
 		//
 		NodeContent root = service.save(new NodeContent(TYPE_TWO, null, "root"));
 		//
 		assertNotNull(root);
 		assertNotNull(root.getForestIndex());
-		assertEquals(1L, root.getForestIndex().getLft().longValue());
-		assertEquals(2L, root.getForestIndex().getRgt().longValue());
-		//
-		// save new root 
-		NodeContent newRoot = service.save(new NodeContent(TYPE_TWO, null, "root two"));
-		assertEquals(1L, newRoot.getForestIndex().getLft().longValue());
-		assertEquals(4L, newRoot.getForestIndex().getRgt().longValue());
-		//
-		root = repository.findOne(root.getId());
-		assertEquals(newRoot.getId(), root.getParent().getId());
 		assertEquals(2L, root.getForestIndex().getLft().longValue());
 		assertEquals(3L, root.getForestIndex().getRgt().longValue());
+		//
+		// save root child
+		NodeContent childRoot = service.save(new NodeContent(TYPE_TWO, root, "root two"));
+		assertEquals(3L, childRoot.getForestIndex().getLft().longValue());
+		assertEquals(4L, childRoot.getForestIndex().getRgt().longValue());
+		//
+		root = repository.findOne(root.getId());
+		assertEquals(root.getId(), childRoot.getParent().getId());
+		assertEquals(2L, root.getForestIndex().getLft().longValue());
+		assertEquals(5L, root.getForestIndex().getRgt().longValue());
 	}
 	
 	@Test
 	public void testFindByForestIndex() {
-		NodeContent oldroot = service.save(new NodeContent(null, "root"));
-		a = service.save(new NodeContent(oldroot, "a"));
-		b = service.save(new NodeContent(oldroot, "b"));
+		NodeContent root = service.save(new NodeContent(null, "root"));
+		NodeContent rootChild = service.save(new NodeContent(root, "new root"));
+		a = service.save(new NodeContent(rootChild, "a"));
+		b = service.save(new NodeContent(rootChild, "b"));
 		service.save(new NodeContent(a, "aa"));
 		service.save(new NodeContent(a, "ab"));
 		ba = service.save(new NodeContent(b, "ba"));
-		bb = service.save(new NodeContent(b, "bb"));
-		NodeContent root = service.save(new NodeContent(null, "new root"));
+		bb = service.save(new NodeContent(b, "bb"));		
 		
 		assertEquals(8, repository.count());
 		
-		List<NodeContent> children = repository.findDirectChildren(oldroot, null).getContent();
+		List<NodeContent> children = repository.findDirectChildren(rootChild, null).getContent();
 		assertEquals(2, children.size());
 	
+		root = repository.findOne(root.getId());
 		a = repository.findOne(a.getId());
 		b = repository.findOne(b.getId());
 		ba = repository.findOne(ba.getId());
 		bb = repository.findOne(bb.getId());
 		
-		assertEquals(1L, root.getForestIndex().getLft().longValue());
+		assertEquals(2L, root.getForestIndex().getLft().longValue());
 		assertEquals(7, (root.getForestIndex().getRgt() - root.getForestIndex().getLft()) / 2); // all children count
 		assertEquals(7, repository.findAllChildren(root, null).getTotalElements()); // all children count by query
 		assertEquals(2, repository.findAllChildren(b, null).getTotalElements()); // all children count by query
@@ -162,12 +171,13 @@ public class DefaultNodeContentServiceTest {
 		//
 		service.rebuildIndexes(ForestIndex.DEFAULT_TREE_TYPE);				
 		//
-		NodeContent root = service.findRoot(ForestIndex.DEFAULT_TREE_TYPE);
+		Page<NodeContent> roots = service.findRoots(ForestIndex.DEFAULT_TREE_TYPE, null);
+		NodeContent root = roots.getContent().get(0);
 		b = repository.findOne(b.getId());
 		ba = repository.findOne(ba.getId());
 		bb = repository.findOne(bb.getId());
 		
-		assertEquals(1L, root.getForestIndex().getLft().longValue());
+		assertEquals(2L, root.getForestIndex().getLft().longValue());
 		assertEquals(7, (root.getForestIndex().getRgt() - root.getForestIndex().getLft()) / 2);
 		
 		assertEquals(2, (b.getForestIndex().getRgt() - b.getForestIndex().getLft()) / 2);
@@ -185,7 +195,8 @@ public class DefaultNodeContentServiceTest {
 		
 		service.delete(bb);	
 		
-		NodeContent root = service.findRoot(ForestIndex.DEFAULT_TREE_TYPE);
+		Page<NodeContent> roots = service.findRoots(ForestIndex.DEFAULT_TREE_TYPE, null);
+		NodeContent root = roots.getContent().get(0);
 		
 		assertEquals(7, repository.count());
 		assertEquals(6, (root.getForestIndex().getRgt() - root.getForestIndex().getLft()) / 2);
@@ -203,7 +214,8 @@ public class DefaultNodeContentServiceTest {
 		service.save(b);
 		//
 		a = repository.findOne(a.getId());
-		NodeContent root = service.findRoot(ForestIndex.DEFAULT_TREE_TYPE);
+		Page<NodeContent> roots = service.findRoots(ForestIndex.DEFAULT_TREE_TYPE, null);
+		NodeContent root = roots.getContent().get(0);
 		assertEquals(5, repository.findAllChildren(a, null).getTotalElements());
 		assertEquals(5, (a.getForestIndex().getRgt() - a.getForestIndex().getLft()) / 2);
 		assertEquals(3, repository.findDirectChildren(a, null).getTotalElements());
@@ -213,13 +225,11 @@ public class DefaultNodeContentServiceTest {
 	
 	public void generateTree(int nodeCount) {
 		long startTime = System.currentTimeMillis();
-		int counter = generateChildren(nodeCount, 0, null);
+		// create parrent
+		NodeContent root = service.save(new NodeContent(null, "root"));
+		int counter = generateChildren(nodeCount - 1, 0, root);
 		//
 		System.out.println("[" + counter + "] nodes generated: " + (System.currentTimeMillis() - startTime) + "ms");
-		//
-		NodeContent root = service.findRoot(ForestIndex.DEFAULT_TREE_TYPE);
-		assertEquals(counter - 1, (root.getForestIndex().getRgt() - root.getForestIndex().getLft()) / 2);
-		assertEquals(counter - 1, repository.findAllChildren(root, null).getTotalElements());
 	}
 	
 	@Test
@@ -227,12 +237,19 @@ public class DefaultNodeContentServiceTest {
 		int nodeCount = 100;
 		generateTree(nodeCount);
 		//
+		Page<NodeContent> roots = service.findRoots(ForestIndex.DEFAULT_TREE_TYPE, null);
+		assertEquals(1, roots.getTotalElements());
+		NodeContent root = roots.getContent().get(0);
+		assertEquals(nodeCount - 1, (root.getForestIndex().getRgt() - root.getForestIndex().getLft()) / 2);
+		assertEquals(nodeCount - 1, repository.findAllChildren(root, null).getTotalElements());
+		//
 		long startTime = System.currentTimeMillis();
 		System.out.println("Starting tree rebuild with [" + nodeCount + "] nodes ...");
 		service.rebuildIndexes(ForestIndex.DEFAULT_TREE_TYPE);
 		System.out.println("Tree with [" + nodeCount + "] nodes was rebuild: " + (System.currentTimeMillis() - startTime) + "ms");
 		//
-		NodeContent root = service.findRoot(ForestIndex.DEFAULT_TREE_TYPE);
+		roots = service.findRoots(ForestIndex.DEFAULT_TREE_TYPE, null);
+		root = roots.getContent().get(0);
 		assertEquals(nodeCount - 1, (root.getForestIndex().getRgt() - root.getForestIndex().getLft()) / 2);
 		assertEquals(nodeCount - 1, repository.findAllChildren(root, null).getTotalElements());
 	}
@@ -270,7 +287,8 @@ public class DefaultNodeContentServiceTest {
 		
 		List<NodeContent> parents = service.findAllParents(bb, new Sort(Direction.DESC, "forestIndex.lft"));
 		assertEquals(3, parents.size());
-		NodeContent root = service.findRoot(ForestIndex.DEFAULT_TREE_TYPE);
+		Page<NodeContent> roots = service.findRoots(ForestIndex.DEFAULT_TREE_TYPE, null);
+		NodeContent root = roots.getContent().get(0);
 		assertEquals(root.getId(), parents.get(2).getId());
 	}
 	

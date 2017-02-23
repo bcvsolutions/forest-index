@@ -2,9 +2,10 @@ package eu.bcvsolutions.forest.index.repository;
 
 import java.io.Serializable;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
-import org.springframework.data.repository.query.Param;
 
 import eu.bcvsolutions.forest.index.domain.ForestContent;
 
@@ -27,14 +28,5 @@ public interface SimpleForestContentRepository<C extends ForestContent<C, ?, CON
 	 * @return
 	 */
 	@Query("select e from #{#entityName} e where e.parent is null")
-	C findRoot();
-	
-	/**
-	 * Finds previous root - used to ensure one root integrity, when another root is created
-	 * 
-	 * @param newParentId newly created root
-	 * @return
-	 */
-	@Query("select e from #{#entityName} e where e.parent is null and e.id <> :newParentId")
-	C findPreviousRoot(@Param("newParentId") CONTENT_ID newParentId);
+	Page<C> findRoots(Pageable pageable);
 }

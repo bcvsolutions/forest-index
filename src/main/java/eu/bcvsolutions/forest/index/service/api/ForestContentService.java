@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.CrudRepository;
 
 import eu.bcvsolutions.forest.index.domain.ForestContent;
 import eu.bcvsolutions.forest.index.domain.ForestIndex;
@@ -22,13 +21,6 @@ import eu.bcvsolutions.forest.index.domain.ForestIndex;
  * @param <CONTENT_ID> content identifier - e.g. {@code Long} or {@link UUID} is preferred
  */
 public interface ForestContentService<C extends ForestContent<C, IX, CONTENT_ID>, IX extends ForestIndex<IX, CONTENT_ID>, CONTENT_ID extends Serializable> {
-	
-	/**
-	 * Return service's repository
-	 * 
-	 * @return
-	 */
-	CrudRepository<C, CONTENT_ID> getRepository();
 	
 	/**
 	 * Rebuild (drop and create) all indexes for given forestTreeType.
@@ -60,21 +52,14 @@ public interface ForestContentService<C extends ForestContent<C, IX, CONTENT_ID>
 	 */
 	C deleteIndex(C content);
 	
-	
 	/**
-	 * Finds root (indexed tree can have onlz one root)
+	 * Finds roots
 	 * 
+	 * @param forestTreeType
+	 * @param pageable
 	 * @return
 	 */
-	C findRoot(String forestTreeType);
-	
-	/**
-	 * Finds previous root - used to ensure one root integrity, when another root is created
-	 * 
-	 * @param newParentId newly created root
-	 * @return
-	 */
-	C findPreviousRoot(String forestTreeType, CONTENT_ID newParentId);
+	Page<C> findRoots(String forestTreeType, Pageable pageable);
 	
 	/**
 	 * Finds direct children for given parent

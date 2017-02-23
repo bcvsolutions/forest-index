@@ -2,6 +2,8 @@ package eu.bcvsolutions.forest.index.repository;
 
 import java.io.Serializable;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.query.Param;
@@ -28,15 +30,5 @@ public interface TypeableForestContentRepository<C extends ForestContent<C, ?, C
 	 * @return
 	 */
 	@Query("select e from #{#entityName} e where e.parent is null and e.forestTreeType = :forestTreeType")
-	C findRoot(@Param("forestTreeType") String forestTreeType);
-	
-	/**
-	 * Finds previous root - used to ensure one root integrity, when another root is created
-	 * 
-	 * @param forestTreeType
-	 * @param newParentId
-	 * @return
-	 */
-	@Query("select e from #{#entityName} e where e.parent is null and e.id <> :newParentId and e.forestTreeType = :forestTreeType")
-	C findPreviousRoot(@Param("forestTreeType") String forestTreeType, @Param("newParentId") CONTENT_ID newParentId);
+	Page<C> findRoots(@Param("forestTreeType") String forestTreeType, Pageable pageable);
 }
