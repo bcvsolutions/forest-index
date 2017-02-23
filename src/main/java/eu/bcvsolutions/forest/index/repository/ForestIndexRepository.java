@@ -15,7 +15,6 @@ import eu.bcvsolutions.forest.index.domain.ForestIndex;
 /**
  * Forest index repository
  * 
- * 
  * @see {@link ForestIndex}
  * @author Radek Tomiška
  * @param <IX> {@link ForestIndex} type - used for parent etc.
@@ -31,6 +30,9 @@ public interface ForestIndexRepository<IX extends ForestIndex<IX, ?>> extends Pa
 	
 	@Query("select e.id from #{#entityName} e where e.parent is null and e.id <> :newParentId and e.forestTreeType = :forestTreeType")
 	Long findPreviousRootId(@Param("forestTreeType") String forestTreeType, @Param("newParentId") Long newParentId);
+	
+	@Query("select e.parent.id from #{#entityName} e where e.id = :id")
+	Long findParentId(@Param("id") Long id);
 	
 	/**
 	 * Finds direct children for given parent
@@ -126,6 +128,6 @@ public interface ForestIndexRepository<IX extends ForestIndex<IX, ?>> extends Pa
 	@Query("update #{#entityName} e set"
 			+ " e.lft = (CASE WHEN e.lft > :lft THEN (e.lft - (:rgt - :lft + 1)) WHEN e.lft is null THEN null ELSE e.lft END),"
 			+ " e.rgt = (CASE WHEN e.rgt > :lft THEN (e.rgt - (:rgt - :lft + 1)) WHEN e.rgt is null THEN null ELSE e.rgt END)"
-			+ " where (e.lft > :lft OR e.rgt > :rgt) and e.forestTreeType = :forestTreeType")
+			+ " where (e.lft > :lft OR e.rgt > :lft) and e.forestTreeType = :forestTreeType")
 	void afterDelete(@Param("forestTreeType") String forestTreeType, @Param("lft") Long lft, @Param("rgt") Long rgt);
 }

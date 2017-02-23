@@ -17,10 +17,10 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "_forest_index", indexes = {
-		@Index(name = "idx_forest_index_parent", columnList = "parent_id"),
-		@Index(name = "idx_forest_index_content", columnList = "content_id"),
-		@Index(name = "idx_forest_index_lft", columnList = "lft"),
-		@Index(name = "idx_forest_index_rgt", columnList = "rgt")
+		@Index(name = "_idx_forest_index_parent", columnList = "parent_id"),
+		@Index(name = "_idx_forest_index_content", columnList = "content_id"),
+		@Index(name = "_idx_forest_index_lft", columnList = "lft"),
+		@Index(name = "_idx_forest_index_rgt", columnList = "rgt")
 		})
 public class ForestIndexEntity extends AbstractForestIndex<ForestIndexEntity, Long> {
 	

@@ -5,6 +5,8 @@ import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.UUID;
 
+import javax.persistence.EntityManager;
+
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,15 +30,20 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 	
 	private final Class<IX> indexClass;
 	private final ForestIndexRepository<IX> repository;
+    private final EntityManager entityManager;
 	
 	@SuppressWarnings("unchecked")
-	public AbstractForestIndexService(ForestIndexRepository<IX> repository) {
+	public AbstractForestIndexService(
+			ForestIndexRepository<IX> repository,
+			EntityManager entityManager) {
 		Assert.notNull(repository);
+		Assert.notNull(entityManager);
 		//
 		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), ForestIndexService.class);
 		indexClass = (Class<IX>)genericTypes[0];
 		//
 		this.repository = repository;
+		this.entityManager = entityManager;
 	}
 	
 	@Override
@@ -67,25 +74,22 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 	}
 	
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional
 	public IX saveNode(IX forestIndex) {
 		Assert.notNull(forestIndex);
+		entityManager.detach(forestIndex); // we need to load previous index value before flush
 		//
 		boolean parentChange = false;
-		IX previous = null;
-		IX previousParent = null;
+		Long previousParentID = null;
 		Long lft = null;
 		Long rgt = null;
 		// evaluate parent change for re-index
 		if (forestIndex.getId() != null) {
-		    previous = repository.findOne(forestIndex.getId());
-			if (previous != null) {
-				previousParent = previous.getParent();
-			}
+			previousParentID = repository.findParentId(forestIndex.getId());
 			lft = forestIndex.getLft();
 			rgt = forestIndex.getRgt();
 		}
-		if (previous != null && !Objects.equals(previousParent, forestIndex.getParent())) {
+		if (!Objects.equals(previousParentID, forestIndex.getParent() == null ? null : forestIndex.getParent().getId())) {
 			forestIndex.setLft(null);
 			forestIndex.setRgt(null);
 			parentChange = true;
@@ -93,7 +97,9 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 		forestIndex = repository.save(forestIndex);
 		if (!parentChange) {
 			// index new node only
-			return countIndex(forestIndex);
+			if (forestIndex.getId() == null || forestIndex.getLft() == null || forestIndex.getRgt() == null) {
+				return countIndex(forestIndex);
+			}
 		} else { // index node, it parent changes
 			// drop moved sub tree indexes 
 			if (lft != null && rgt != null) {
@@ -101,6 +107,8 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 				repository.afterDelete(forestIndex.getForestTreeType(), lft, rgt);
 			}
 			// create new indexes
+			forestIndex.setLft(null);
+			forestIndex.setRgt(null);
 			recountIndexes(countIndex(forestIndex));
 		}
 		return forestIndex;
@@ -109,6 +117,10 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 	private IX countIndex(IX forestIndex) {
 		Assert.notNull(forestIndex);
 		Assert.notNull(forestIndex.getId());
+		//
+		// we need new data in next queries
+		entityManager.flush();
+		entityManager.clear();
 		//
 		// inserting a new root node
 		if (forestIndex.getParent() == null) {
@@ -128,29 +140,6 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 			repository.updateIndexes(forestIndex.getId(), forestIndex.getLft(), forestIndex.getRgt(), forestIndex.getParent());
 		}
 		return forestIndex;
-	}
-	
-	@Override
-	@Transactional
-	public void deleteNode(IX forestIndex, boolean closeGap) {
-		Assert.notNull(forestIndex);
-		//
-		repository.delete(forestIndex.getForestTreeType(), forestIndex.getLft(), forestIndex.getRgt());
-		if (closeGap) {
-			repository.afterDelete(forestIndex.getForestTreeType(), forestIndex.getLft(), forestIndex.getRgt());
-		}
-	}
-	
-	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void dropIndexes(String forestTreeType) {
-		repository.dropIndexes(forestTreeType);
-	}
-	
-	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void clearIndexes(String forestTreeType) { // TODO: tree type
-		repository.clearIndexes(forestTreeType);
 	}
 	
 	@Override
@@ -205,5 +194,28 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 			content.setForestIndex(null);
 		}
 		return content;
+	}
+	
+	@Override
+	@Transactional
+	public void deleteNode(IX forestIndex, boolean closeGap) {
+		Assert.notNull(forestIndex);
+		//
+		repository.delete(forestIndex.getForestTreeType(), forestIndex.getLft(), forestIndex.getRgt());
+		if (closeGap) {
+			repository.afterDelete(forestIndex.getForestTreeType(), forestIndex.getLft(), forestIndex.getRgt());
+		}
+	}
+	
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void dropIndexes(String forestTreeType) {
+		repository.dropIndexes(forestTreeType);
+	}
+	
+	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	public void clearIndexes(String forestTreeType) { // TODO: tree type
+		repository.clearIndexes(forestTreeType);
 	}
 }

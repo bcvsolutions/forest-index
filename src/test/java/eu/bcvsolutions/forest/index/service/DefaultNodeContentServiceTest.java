@@ -221,6 +221,7 @@ public class DefaultNodeContentServiceTest {
 		assertEquals(3, repository.findDirectChildren(a, null).getTotalElements());
 		assertEquals(7, repository.findAllChildren(root, null).getTotalElements());
 		assertEquals(7, (root.getForestIndex().getRgt() - root.getForestIndex().getLft()) / 2);
+		
 	}
 	
 	public void generateTree(int nodeCount) {

@@ -25,7 +25,7 @@ import eu.bcvsolutions.forest.index.domain.ForestIndex;
  */
 @Entity
 @Table(name = "_node_content", indexes = {
-		@Index(name = "idx_node_content_parent", columnList = "parent_id")
+		@Index(name = "_idx_node_content_parent", columnList = "parent_id")
 		})
 public class NodeContent implements ForestContent<NodeContent, ForestIndexEntity, Long> {
 
