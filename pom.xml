@@ -107,6 +107,13 @@
 			<properties>
 				<spring.profiles.active>default</spring.profiles.active>
 			</properties>
+                        <distributionManagement>
+                                <snapshotRepository>
+                                        <id>nexus</id>
+                                        <name>Nexus Staging repo</name>
+                                        <url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
+                                </snapshotRepository>
+                        </distributionManagement>
 			<dependencies>
 				<dependency>
 					<groupId>com.h2database</groupId>
