@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.4.4.RELEASE</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
 
 	<groupId>eu.bcvsolutions.forest.index</groupId>
 	<artifactId>forest-index</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<packaging>jar</packaging>
 
 	<name>Forest Index</name>
@@ -27,13 +33,6 @@
 		</developer>
 	</developers>
 
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.4.4.RELEASE</version>
-		<relativePath /> <!-- lookup parent from repository -->
-	</parent>
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -41,6 +40,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<spring.profiles.active>default</spring.profiles.active>
+		<maven.javadoc.failOnError>false</maven.javadoc.failOnError>
 	</properties>
 
 	<repositories>
@@ -53,6 +53,19 @@
 			<url>https://artifacts.alfresco.com/nexus/content/repositories/public/</url>
 		</repository>
 	</repositories>
+	
+	<distributionManagement>
+		<snapshotRepository>
+			<id>nexus</id>
+			<name>Nexus Staging repo</name>
+			<url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
+		</snapshotRepository>
+        <repository>
+			<id>nexus</id>
+			<name>Nexus Staging repo</name>
+			<url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
+		</repository>
+      </distributionManagement>
 
 	<dependencies>
 		<dependency>
@@ -88,7 +101,7 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<testResources>
 			<testResource>
@@ -96,6 +109,28 @@
 				<filtering>true</filtering>
 			</testResource>
 		</testResources>
+		
+		<plugins>
+			<plugin>
+				<groupId>com.atlassian.maven.plugins</groupId>
+				<artifactId>maven-jgitflow-plugin</artifactId>
+				<version>1.0-m4.3</version>
+				<configuration>
+					<pushReleases>true</pushReleases>
+					<keepBranch>false</keepBranch>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<allowUntracked>true</allowUntracked>
+					<pullDevelop>true</pullDevelop>
+					<pullMaster>true</pullMaster>
+					<allowSnapshots>true</allowSnapshots>
+					<versionTagPrefix>v.</versionTagPrefix>
+					<flowInitContext>
+						<masterBranchName>master</masterBranchName>
+						<developBranchName>develop</developBranchName>
+					</flowInitContext>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 
 	<profiles>
@@ -107,13 +142,6 @@
 			<properties>
 				<spring.profiles.active>default</spring.profiles.active>
 			</properties>
-                        <distributionManagement>
-                                <snapshotRepository>
-                                        <id>nexus</id>
-                                        <name>Nexus Staging repo</name>
-                                        <url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
-                                </snapshotRepository>
-                        </distributionManagement>
 			<dependencies>
 				<dependency>
 					<groupId>com.h2database</groupId>
