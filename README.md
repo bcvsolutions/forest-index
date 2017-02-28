@@ -28,6 +28,18 @@ Build on spring boot, spring data and hibernate.
 
 ### Maven
 
+Add maven repository
+
+```xml
+...
+<repository>
+	<id>nexus</id>
+	<url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
+</repository>
+...
+```
+
+
 Add maven dependency to project
 
 ```xml
@@ -35,7 +47,7 @@ Add maven dependency to project
 <dependency>
 	<groupId>eu.bcvsolutions.forest.index</groupId>
 	<artifactId>forest-index</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 </dependency>
 ...
 ```
