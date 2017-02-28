@@ -127,7 +127,7 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 			repository.beforeRootInsert(forestIndex.getForestTreeType());
 			forestIndex.setLft(1L);
 			forestIndex.setRgt(repository.addedRootRgt(forestIndex.getForestTreeType()));			
-			forestIndex = repository.save(forestIndex);
+			repository.updateIndexes(forestIndex.getId(), forestIndex.getLft(), forestIndex.getRgt(), null);
 			Long previousRootId = repository.findPreviousRootId(forestIndex.getForestTreeType(), forestIndex.getId());
 			if (previousRootId != null) {
 				repository.updateParent(previousRootId, forestIndex);
@@ -139,6 +139,7 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 			forestIndex.setRgt(parentRgt + 1L);
 			repository.updateIndexes(forestIndex.getId(), forestIndex.getLft(), forestIndex.getRgt(), forestIndex.getParent());
 		}
+		//
 		return forestIndex;
 	}
 	

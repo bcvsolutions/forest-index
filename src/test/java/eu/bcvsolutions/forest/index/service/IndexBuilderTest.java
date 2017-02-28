@@ -184,7 +184,7 @@ public class IndexBuilderTest {
 	
 	
 	private int generateChildren(int total, int counter, ForestIndexEntity parent) {
-		int childrenCount = r.nextInt(50);
+		int childrenCount = r.nextInt(50) + 1;
 		for(int i = 0; i < childrenCount; i++) {
 			ForestIndexEntity node = service.saveNode(new ForestIndexEntity(parent));
 			if(children.size() < 25) {
@@ -197,12 +197,10 @@ public class IndexBuilderTest {
 				System.out.println("[" + (i + counter + 1) + "] nodes generated ...");
 			}
 		}
-		for (ForestIndexEntity child : children) {
-			counter = generateChildren(total, counter + childrenCount, child);
-			if (counter >= total) {
-				return counter;
-			}
-			children.remove(child);
+		ForestIndexEntity firstChild = children.remove(0);
+		counter = generateChildren(total, counter + childrenCount, firstChild);
+		if (counter >= total) {
+			return counter;
 		}
 		return counter;		
 	}

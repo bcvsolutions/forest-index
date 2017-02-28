@@ -257,7 +257,7 @@ public class DefaultNodeContentServiceTest {
 	
 	
 	private int generateChildren(int total, int counter, NodeContent parent) {
-		int childrenCount = r.nextInt(50);
+		int childrenCount = r.nextInt(50) + 1;
 		for(int i = 0; i < childrenCount; i++) {
 			NodeContent node = service.save(new NodeContent(parent, (parent == null ? "" : parent.getId() + "_") + i));
 			if(children.size() < 25) {
@@ -270,12 +270,10 @@ public class DefaultNodeContentServiceTest {
 				System.out.println("[" + (i + counter + 1) + "] nodes generated ...");
 			}
 		}
-		for (NodeContent child : children) {
-			counter = generateChildren(total, counter + childrenCount, child);
-			if (counter >= total) {
-				return counter;
-			}
-			children.remove(child);
+		NodeContent firstChild = children.remove(0);
+		counter = generateChildren(total, counter + childrenCount, firstChild);
+		if (counter >= total) {
+			return counter;
 		}
 		return counter;		
 	}
