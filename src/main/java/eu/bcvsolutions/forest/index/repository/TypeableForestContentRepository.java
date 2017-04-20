@@ -24,7 +24,7 @@ public interface TypeableForestContentRepository<C extends ForestContent<C, ?, C
 		extends BaseForestContentRepository<C, CONTENT_ID> {
 
 	/**
-	 * Finds root (indexed tree can have onlz one root)
+	 * Finds roots
 	 * 
 	 * @param forestTreeType
 	 * @return

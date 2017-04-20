@@ -23,7 +23,7 @@ public interface SimpleForestContentRepository<C extends ForestContent<C, ?, CON
 		extends BaseForestContentRepository<C, CONTENT_ID> {
 
 	/**
-	 * Finds root (indexed tree can have onlz one root)
+	 * Finds roots
 	 * 
 	 * @return
 	 */

@@ -48,7 +48,10 @@ public class DefaultNodeContentService extends AbstractForestContentService<Node
 	@Transactional
 	public void delete(NodeContent content) {
 		Assert.notNull(content);
-		//
+		// remove all children
+		findAllChildren(content, null).forEach(child -> {
+			repository.delete(child);
+		});
 		repository.delete(deleteIndex(content));
 	}
 }

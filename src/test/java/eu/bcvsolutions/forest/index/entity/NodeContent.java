@@ -40,7 +40,9 @@ public class NodeContent implements ForestContent<NodeContent, ForestIndexEntity
 	private String name;
 	
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "parent_id", referencedColumnName = "id")
+	@JoinColumn(name = "parent_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private NodeContent parent;	
 	
 	@ManyToOne(optional = true)
