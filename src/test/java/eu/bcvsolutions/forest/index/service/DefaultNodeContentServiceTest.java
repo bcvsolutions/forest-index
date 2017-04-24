@@ -17,8 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import eu.bcvsolutions.forest.index.domain.ForestIndex;
 import eu.bcvsolutions.forest.index.entity.ForestIndexEntity;
@@ -40,11 +38,12 @@ public class DefaultNodeContentServiceTest {
 	private NodeContentRepository repository;
 	@Autowired
 	private NodeContentService service;
-	@Autowired
-	private PlatformTransactionManager platformTransactionManager;
-	private TransactionTemplate template;
+//	@Autowired
+//	private PlatformTransactionManager platformTransactionManager;
+//	private TransactionTemplate template;
 	//
 	private Random r = new Random();
+	private NodeContent root = null;
 	private NodeContent a = null;
 	private NodeContent b = null;
 	private NodeContent ba = null;
@@ -124,9 +123,8 @@ public class DefaultNodeContentServiceTest {
 		assertEquals(5L, root.getForestIndex().getRgt().longValue());
 	}
 	
-	@Test
-	public void testFindByForestIndex() {
-		NodeContent root = service.save(new NodeContent(null, "root"));
+	private void createTestTree() {
+		root = service.save(new NodeContent(null, "root"));
 		NodeContent rootChild = service.save(new NodeContent(root, "new root"));
 		a = service.save(new NodeContent(rootChild, "a"));
 		b = service.save(new NodeContent(rootChild, "b"));
@@ -145,6 +143,11 @@ public class DefaultNodeContentServiceTest {
 		b = repository.findOne(b.getId());
 		ba = repository.findOne(ba.getId());
 		bb = repository.findOne(bb.getId());
+	}
+	
+	@Test
+	public void testFindByForestIndex() {
+		createTestTree();
 		
 		assertEquals(2L, root.getForestIndex().getLft().longValue());
 		assertEquals(7, (root.getForestIndex().getRgt() - root.getForestIndex().getLft()) / 2); // all children count
@@ -161,7 +164,7 @@ public class DefaultNodeContentServiceTest {
 	
 	@Test
 	public void testFunctionalRebuild() {
-		testFindByForestIndex();
+		createTestTree();
 		
 		assertEquals(8, repository.count());
 
@@ -190,7 +193,7 @@ public class DefaultNodeContentServiceTest {
 	
 	@Test
 	public void deleteNode() {
-		testFindByForestIndex();
+		createTestTree();
 		assertEquals(8, repository.count());
 		
 		service.delete(bb);	
@@ -200,6 +203,21 @@ public class DefaultNodeContentServiceTest {
 		
 		assertEquals(7, repository.count());
 		assertEquals(6, (root.getForestIndex().getRgt() - root.getForestIndex().getLft()) / 2);
+	}
+	
+	@Test
+	public void deleteNodeWithChildren() {
+		createTestTree();
+		
+		assertEquals(8, repository.count());
+		
+		service.delete(b);	
+		
+		Page<NodeContent> roots = service.findRoots(ForestIndex.DEFAULT_TREE_TYPE, null);
+		NodeContent root = roots.getContent().get(0);
+		
+		assertEquals(5, repository.count());
+		assertEquals(4, (root.getForestIndex().getRgt() - root.getForestIndex().getLft()) / 2);
 	}
 	
 	@Test
@@ -294,14 +312,14 @@ public class DefaultNodeContentServiceTest {
 	/**
 	 * Creates new template by platformTransactionManager
 	 */
-	protected void prepareTransactionTemplate() {
-		template = new TransactionTemplate(platformTransactionManager);
-	}
-	
-	protected TransactionTemplate getTransactionTemplate() {
-		if (template == null) {
-			prepareTransactionTemplate();
-		}
-		return template;
-	}
+//	private void prepareTransactionTemplate() {
+//		template = new TransactionTemplate(platformTransactionManager);
+//	}
+//	
+//	private TransactionTemplate getTransactionTemplate() {
+//		if (template == null) {
+//			prepareTransactionTemplate();
+//		}
+//		return template;
+//	}
 }

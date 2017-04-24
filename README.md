@@ -7,7 +7,7 @@ Features:
 * Get all tree node parents in "one select".
 
 Implemented operations with content and index:
-* creates "syntetic" index root when content is inexed => supports more content roots (forest index requires one root, but indexed content could have more roots).
+* creates "syntetic" index root when content is indexed => supports more content roots (forest index requires one root, but indexed content could have more roots).
 * create index when content is created
 * drop indexes, when content is deleted
 * update index, when content is moved in tree structure => when content parent is changed, then index is recounted. Its implemented by "drop and created" and can be improved in future
@@ -28,6 +28,18 @@ Build on spring boot, spring data and hibernate.
 
 ### Maven
 
+Add maven repository
+
+```xml
+...
+<repository>
+	<id>nexus</id>
+	<url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
+</repository>
+...
+```
+
+
 Add maven dependency to project
 
 ```xml
@@ -35,7 +47,7 @@ Add maven dependency to project
 <dependency>
 	<groupId>eu.bcvsolutions.forest.index</groupId>
 	<artifactId>forest-index</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0</version>
 </dependency>
 ...
 ```
@@ -271,6 +283,16 @@ Complete example could be found i test package.
 ### Implementation notes
 
 Sometimes, maybe every time, is not possible to generalize `AbstractForestContentService`. Better approach is to implement `ForestContentService`  directly - `AbstractForestContentService` is wrapper for ForestIndexService only.
+
+### Development
+
+#### Setup jpa metamodel generation in Eclipse
+
+* Go to `Project` -> `Properties` -> `Java Compliler` -> `Annotation Processing` -> check `Enable project specific settings` and fill **target/metamodel** as `Generated source directory`.
+* Go to `Project` -> `Properties` -> `Java Compliler` -> `Annotation Processing` -> `Factory path` -> check `Enable project specific settings` and add external jar `hibernate-jpamodelgen.jar` (version 5.x.x). Artefact could be found in local maven repository or downloaded from any public maven repository.
+* remove Eclipse pom.xml error - `Plugin execution not covered by lifecycle configuration: org.bsc.maven:maven-processor-plugin:3.3.1:process (execution: process, phase: generate-sources)` - go to `Window` -> `Preferences` -> `Maven` -> `Errors/Warnings` -> set `Plugins execution not covered by lifecycle configuration` to `warning`.
+
+[Other IDEs](https://docs.jboss.org/hibernate/jpamodelgen/1.0/reference/en-US/html_single/#d0e319)
 
 ## License
 
