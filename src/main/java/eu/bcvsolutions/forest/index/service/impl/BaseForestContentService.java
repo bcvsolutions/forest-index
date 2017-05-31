@@ -13,7 +13,6 @@ import org.springframework.util.Assert;
 import eu.bcvsolutions.forest.index.domain.ForestContent;
 import eu.bcvsolutions.forest.index.domain.ForestIndex;
 import eu.bcvsolutions.forest.index.repository.BaseForestContentRepository;
-import eu.bcvsolutions.forest.index.repository.TypeableForestContentRepository;
 import eu.bcvsolutions.forest.index.service.api.ForestContentService;
 import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
 
@@ -36,7 +35,7 @@ public abstract class BaseForestContentService<C extends ForestContent<C, IX, CO
 	private final BaseForestContentRepository<C, CONTENT_ID> repository;
 
 	public BaseForestContentService(ForestIndexService<IX, CONTENT_ID> forestIndexService,
-			TypeableForestContentRepository<C, CONTENT_ID> repository) {
+			BaseForestContentRepository<C, CONTENT_ID> repository) {
 		Assert.notNull(forestIndexService);
 		Assert.notNull(repository);
 		//
