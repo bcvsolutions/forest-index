@@ -3,7 +3,6 @@ package eu.bcvsolutions.forest.index.service.api;
 import java.io.Serializable;
 import java.util.UUID;
 
-import eu.bcvsolutions.forest.index.domain.ForestContent;
 import eu.bcvsolutions.forest.index.domain.ForestIndex;
 
 /**
@@ -56,16 +55,17 @@ public interface ForestIndexService<IX extends ForestIndex<IX, CONTENT_ID>, CONT
 	/**
 	 * Creates or updates index for given content.
 	 * 
-	 * @param content
+	 * @param contentId
+	 * @param parentContentId content's parent id
 	 * @return
 	 */
-	<C extends ForestContent<C, IX, CONTENT_ID>> C index(C content);
+	IX index(String forestTreeType, CONTENT_ID contentId, CONTENT_ID parentContentId);
 	
 	/**
 	 * Drops index for given content.
 	 * 
-	 * @param content
+	 * @param contentId
 	 * @return
 	 */
-	<C extends ForestContent<C, IX, CONTENT_ID>> C dropIndex(C content);
+	IX dropIndex(CONTENT_ID contentId);
 }

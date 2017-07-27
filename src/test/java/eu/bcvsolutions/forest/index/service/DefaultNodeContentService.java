@@ -31,16 +31,25 @@ public class DefaultNodeContentService extends AbstractForestContentService<Node
 	}
 	
 	@Override
+	@Transactional(readOnly = true)
+	public NodeContent get(Long id) {
+		return repository.findOne(id);
+	}
+	
+	@Override
 	@Transactional
 	public NodeContent save(NodeContent content) {
 		Assert.notNull(content);
 		//
 		if (content.getId() == null) {
 			// create new
-			return createIndex(repository.save(content));
+			content = repository.save(content);
+			content.setForestIndex(createIndex(content.getForestTreeType(), content.getId(), content.getParentId()));
+			return content;
 		} else {
 			// update - we need to reindex first
-			return repository.save(updateIndex(content));
+			content.setForestIndex(updateIndex(content.getForestTreeType(), content.getId(), content.getParentId()));
+			return repository.save(content);
 		}
 	}
 
@@ -49,9 +58,10 @@ public class DefaultNodeContentService extends AbstractForestContentService<Node
 	public void delete(NodeContent content) {
 		Assert.notNull(content);
 		// remove all children
-		findAllChildren(content, null).forEach(child -> {
+		findAllChildren(content.getId(), null).forEach(child -> {
 			repository.delete(child);
 		});
-		repository.delete(deleteIndex(content));
+		deleteIndex(content.getId());
+		repository.delete(content);
 	}
 }

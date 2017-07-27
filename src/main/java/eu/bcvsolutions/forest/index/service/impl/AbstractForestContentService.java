@@ -24,7 +24,7 @@ import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
  * @param <IX> index type
  * @param <CONTENT_ID> content identifier - e.g. {@code Long} or {@link UUID} is preferred
  */
-public abstract class AbstractForestContentService<C extends ForestContent<C, IX, CONTENT_ID>, IX 
+public abstract class AbstractForestContentService<C extends ForestContent<IX, CONTENT_ID>, IX 
 		extends ForestIndex<IX, CONTENT_ID>, CONTENT_ID extends Serializable>
 		extends BaseForestContentService<C, IX, CONTENT_ID> {
 

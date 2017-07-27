@@ -11,7 +11,7 @@ import java.util.UUID;
  * @param <IX> index type
  * @param <CONTENT_ID> content identifier - e.g. {@code Long} or {@link UUID} is preferred
  */
-public interface ForestContent<C extends ForestContent<C, IX, CONTENT_ID>, IX extends ForestIndex<IX, CONTENT_ID>, CONTENT_ID extends Serializable>
+public interface ForestContent<IX extends ForestIndex<IX, CONTENT_ID>, CONTENT_ID extends Serializable>
 		extends Serializable {
 
 	/**
@@ -26,9 +26,9 @@ public interface ForestContent<C extends ForestContent<C, IX, CONTENT_ID>, IX ex
 	 * 
 	 * @return
 	 */
-	C getParent();
+	CONTENT_ID getParentId();
 	
-	void setParent(C parent);
+//	void setParentId(CONTENT_ID parent);
 	
 	/**
 	 * Content index

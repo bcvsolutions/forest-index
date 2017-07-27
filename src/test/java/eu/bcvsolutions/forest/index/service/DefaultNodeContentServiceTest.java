@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,12 @@ import eu.bcvsolutions.forest.index.repository.ForestIndexEntityRepository;
 import eu.bcvsolutions.forest.index.repository.NodeContentRepository;
 import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
 
-
+/**
+ * Content + index integration tests
+ * 
+ * @author Radek Tomiška
+ *
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class DefaultNodeContentServiceTest {
@@ -302,11 +308,39 @@ public class DefaultNodeContentServiceTest {
 		
 		assertEquals(8, repository.count());
 		
-		List<NodeContent> parents = service.findAllParents(bb, new Sort(Direction.DESC, "forestIndex.lft"));
+		List<NodeContent> parents = service.findAllParents(bb.getId(), new Sort(Direction.DESC, "forestIndex.lft"));
 		assertEquals(3, parents.size());
 		Page<NodeContent> roots = service.findRoots(ForestIndex.DEFAULT_TREE_TYPE, null);
 		NodeContent root = roots.getContent().get(0);
 		assertEquals(root.getId(), parents.get(2).getId());
+	}
+	
+	@Test
+	public void testForestIndexAfterBulkMove() {
+		int rootCount = 10;
+		//
+		// create root nodes
+		for (int i = 0; i < rootCount; i++) {
+			service.save(new NodeContent(null, "c_" + i));
+		}
+		Assert.assertEquals(10L, service.findRoots(ForestIndex.DEFAULT_TREE_TYPE, null).getTotalElements());
+		//
+		// move nodes to the first node
+		List<NodeContent> nodes = service.findRoots(ForestIndex.DEFAULT_TREE_TYPE, null).getContent();
+		NodeContent root = nodes.get(0);
+		for (int i = 0; i < nodes.size(); i++) {
+			NodeContent node = nodes.get(i);
+			if (node.getId().equals(root.getId())) {
+				continue;
+			}
+			node.setParent(root);
+			service.save(node);
+		}		
+		// check
+		root = service.get(root.getId());
+		Assert.assertEquals(1L, service.findRoots(ForestIndex.DEFAULT_TREE_TYPE, null).getTotalElements());
+		Assert.assertEquals(rootCount - 1, service.findDirectChildren(root.getId(), null).getTotalElements());
+		Assert.assertEquals(rootCount - 1, service.findAllChildren(root.getId(), null).getTotalElements());
 	}
 	
 	/**

@@ -24,7 +24,7 @@ import eu.bcvsolutions.forest.index.domain.ForestContent;
  * @param <CONTENT_ID> entity = content identifier
  */
 @NoRepositoryBean
-public interface BaseForestContentRepository<C extends ForestContent<C, ?, CONTENT_ID>, CONTENT_ID extends Serializable> extends PagingAndSortingRepository<C, CONTENT_ID> {
+public interface BaseForestContentRepository<C extends ForestContent<?, CONTENT_ID>, CONTENT_ID extends Serializable> extends PagingAndSortingRepository<C, CONTENT_ID> {
 	
 	/**
 	 * Finds direct children for given parent

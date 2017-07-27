@@ -27,7 +27,7 @@ import eu.bcvsolutions.forest.index.domain.ForestIndex;
 @Table(name = "_node_content", indexes = {
 		@Index(name = "_idx_node_content_parent", columnList = "parent_id")
 		})
-public class NodeContent implements ForestContent<NodeContent, ForestIndexEntity, Long> {
+public class NodeContent implements ForestContent<ForestIndexEntity, Long> {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -94,14 +94,17 @@ public class NodeContent implements ForestContent<NodeContent, ForestIndexEntity
 		this.forestIndex = forestIndex;
 	}
 	
-	@Override
 	public NodeContent getParent() {
 		return parent;
 	}
 	
-	@Override
 	public void setParent(NodeContent parent) {
 		this.parent = parent;
+	}
+	
+	@Override
+	public Long getParentId() {
+		return parent == null ? null : parent.getId();
 	}
 	
 	@Override

@@ -11,7 +11,7 @@
 
 	<groupId>eu.bcvsolutions.forest.index</groupId>
 	<artifactId>forest-index</artifactId>
-	<version>0.1.1</version>
+	<version>0.2.0</version>
 	<packaging>jar</packaging>
 
 	<name>Forest Index</name>
@@ -19,7 +19,7 @@
 
 	<organization>
 		<name>BCV solutions s.r.o.</name>
-		<url>http://www.bcvsolutions.cz</url>
+		<url>http://www.bcvsolutions.eu</url>
 	</organization>
 
 	<developers>

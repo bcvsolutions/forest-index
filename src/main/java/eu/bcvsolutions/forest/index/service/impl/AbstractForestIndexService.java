@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import eu.bcvsolutions.forest.index.domain.ForestContent;
 import eu.bcvsolutions.forest.index.domain.ForestIndex;
 import eu.bcvsolutions.forest.index.repository.ForestIndexRepository;
 import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
@@ -29,12 +28,12 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 		implements ForestIndexService<IX, CONTENT_ID> {
 	
 	private final Class<IX> indexClass;
-	private final ForestIndexRepository<IX> repository;
+	private final ForestIndexRepository<IX, CONTENT_ID> repository;
     private final EntityManager entityManager;
 	
 	@SuppressWarnings("unchecked")
 	public AbstractForestIndexService(
-			ForestIndexRepository<IX> repository,
+			ForestIndexRepository<IX, CONTENT_ID> repository,
 			EntityManager entityManager) {
 		Assert.notNull(repository);
 		Assert.notNull(entityManager);
@@ -145,24 +144,25 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 	
 	@Override
 	@Transactional
-	public <C extends ForestContent<C, IX, CONTENT_ID>> C index(C content) {
+	public IX index(String forestTreeType, CONTENT_ID contentId, CONTENT_ID parentContentId) {
 		// previous index
-		IX index = content.getForestIndex();
+		IX index = repository.findOneByContentId(contentId);
 		// get parent index
 		IX parentIndex = null;
-		if (content.getParent() != null) {
-			parentIndex = content.getParent().getForestIndex();
+		if (parentContentId != null) {
+			parentIndex = repository.findOneByContentId(parentContentId);
 			if (parentIndex == null) {
 				// reindex parent recursively
-				parentIndex = index(content.getParent()).getForestIndex();
+				// parentIndex = index(content.getParent()).getForestIndex();
+				throw new UnsupportedOperationException("Parent doesn't have index - index parent at first.");
 			}
 		} else {
 			// generate syntetic root - we want to support more content roots
-			parentIndex = repository.findRoot(content.getForestTreeType());
+			parentIndex = repository.findRoot(forestTreeType);
 			if (parentIndex == null) {
 				try {
 					parentIndex = indexClass.newInstance();
-					parentIndex.setForestTreeType(content.getForestTreeType());
+					parentIndex.setForestTreeType(forestTreeType);
 					parentIndex = this.saveNode(parentIndex);
 				} catch (InstantiationException | IllegalAccessException o_O) {
 					throw new IllegalArgumentException(MessageFormat.format("[{0}] does not support creating new instance. Fix forest index class - add default constructor.", indexClass), o_O);
@@ -180,21 +180,20 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 		// set parent index
 		index.setParent(parentIndex);
 		// set content id reference
-		index.setContentId(content.getId());
-		index.setForestTreeType(content.getForestTreeType());
+		index.setContentId(contentId);
+		index.setForestTreeType(forestTreeType);
 		// create index
-		content.setForestIndex(this.saveNode(index));
-		//
-		return content;
+		return this.saveNode(index);
 	}
 	
 	@Override
-	public <C extends ForestContent<C, IX, CONTENT_ID>> C dropIndex(C content) {
-		if (content.getForestIndex() != null) {
-			deleteNode(content.getForestIndex(), true);
-			content.setForestIndex(null);
+	public IX dropIndex(CONTENT_ID contentId) {
+		IX index = repository.findOneByContentId(contentId);
+		//
+		if (index != null) {
+			deleteNode(index, true);
 		}
-		return content;
+		return index;
 	}
 	
 	@Override
