@@ -111,6 +111,9 @@ public abstract class AbstractForestIndex<IX extends ForestIndex<IX, CONTENT_ID>
 	
 	@Override
 	public int getChildrenCount() {
+		if (rgt == null || lft == null) {
+			return 0;
+		}
 		return (int) ((rgt - lft) / 2);
 	}
 	

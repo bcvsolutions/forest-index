@@ -1,5 +1,6 @@
 package eu.bcvsolutions.forest.index.repository;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -20,7 +21,8 @@ import eu.bcvsolutions.forest.index.domain.ForestIndex;
  * @param <IX> {@link ForestIndex} type - used for parent etc.
  */
 @NoRepositoryBean
-public interface ForestIndexRepository<IX extends ForestIndex<IX, ?>> extends PagingAndSortingRepository<IX, Long> {
+public interface ForestIndexRepository<IX extends ForestIndex<IX, CONTENT_ID>, CONTENT_ID extends Serializable> 
+		extends PagingAndSortingRepository<IX, Long> {
 	
 	@Query("select e from #{#entityName} e where e.parent is null and e.forestTreeType = :forestTreeType")
 	IX findRoot(@Param("forestTreeType") String forestTreeType);
@@ -33,6 +35,8 @@ public interface ForestIndexRepository<IX extends ForestIndex<IX, ?>> extends Pa
 	
 	@Query("select e.parent.id from #{#entityName} e where e.id = :id")
 	Long findParentId(@Param("id") Long id);
+	
+	IX findOneByContentId(@Param("contentId") CONTENT_ID contentId);
 	
 	/**
 	 * Finds direct children for given parent

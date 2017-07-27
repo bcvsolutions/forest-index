@@ -28,7 +28,7 @@ import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
  * @param <IX> index type
  * @param <CONTENT_ID> content identifier - e.g. {@code Long} or {@link UUID} is preferred
  */
-public abstract class BaseForestContentService<C extends ForestContent<C, IX, CONTENT_ID>, IX extends ForestIndex<IX, CONTENT_ID>, CONTENT_ID extends Serializable>
+public abstract class BaseForestContentService<C extends ForestContent<IX, CONTENT_ID>, IX extends ForestIndex<IX, CONTENT_ID>, CONTENT_ID extends Serializable>
 		implements ForestContentService<C, IX, CONTENT_ID> {
 
 	private final ForestIndexService<IX, CONTENT_ID> forestIndexService;
@@ -49,7 +49,8 @@ public abstract class BaseForestContentService<C extends ForestContent<C, IX, CO
 		forestIndexService.dropIndexes(forestTreeType);
 		//
 		findRoots(forestTreeType, null).forEach(root ->{
-			recountIndexes(createIndex(root));
+			createIndex(forestTreeType, root.getId(), null);
+			recountIndexes(root);
 		});
 	}
 
@@ -62,44 +63,45 @@ public abstract class BaseForestContentService<C extends ForestContent<C, IX, CO
 	private void recountIndexes(C parent) {
 		Assert.notNull(parent);
 		//
-		repository.findDirectChildren(parent, null).forEach(forestIndex -> {
-			recountIndexes(createIndex(forestIndex));
+		repository.findDirectChildren(parent, null).forEach(content -> {
+			createIndex(content.getForestTreeType(), content.getId(), content.getParentId());
+			recountIndexes(content);
 		});
 	}
 
 	@Override
 	@Transactional
-	public C createIndex(C content) {
-		return forestIndexService.index(content);
+	public IX createIndex(String forestTreeType, CONTENT_ID contentId, CONTENT_ID parentContentId) {
+		return forestIndexService.index(forestTreeType, contentId, parentContentId);
 	}
 
 	@Override
 	@Transactional
-	public C updateIndex(C content) {
-		return forestIndexService.index(content);
+	public IX updateIndex(String forestTreeType, CONTENT_ID contentId, CONTENT_ID parentContentId) {
+		return forestIndexService.index(forestTreeType, contentId, parentContentId);
 	}
 
 	@Override
 	@Transactional
-	public C deleteIndex(C content) {
-		return forestIndexService.dropIndex(content);
+	public IX deleteIndex(CONTENT_ID contentId) {
+		return forestIndexService.dropIndex(contentId);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<C> findDirectChildren(C parent, Pageable pageable) {
-		return repository.findDirectChildren(parent, pageable);
+	public Page<C> findDirectChildren(CONTENT_ID contentId, Pageable pageable) {
+		return repository.findDirectChildren(repository.findOne(contentId), pageable);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<C> findAllChildren(C parent, Pageable pageable) {
-		return repository.findAllChildren(parent, pageable);
+	public Page<C> findAllChildren(CONTENT_ID contentId, Pageable pageable) {
+		return repository.findAllChildren(repository.findOne(contentId), pageable);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<C> findAllParents(C content, Sort sort) {
-		return repository.findAllParents(content, sort);
+	public List<C> findAllParents(CONTENT_ID contentId, Sort sort) {
+		return repository.findAllParents(repository.findOne(contentId), sort);
 	}
 }

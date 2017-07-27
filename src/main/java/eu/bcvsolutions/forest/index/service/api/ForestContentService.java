@@ -20,7 +20,7 @@ import eu.bcvsolutions.forest.index.domain.ForestIndex;
  * @param <IX> index type
  * @param <CONTENT_ID> content identifier - e.g. {@code Long} or {@link UUID} is preferred
  */
-public interface ForestContentService<C extends ForestContent<C, IX, CONTENT_ID>, IX extends ForestIndex<IX, CONTENT_ID>, CONTENT_ID extends Serializable> {
+public interface ForestContentService<C extends ForestContent<IX, CONTENT_ID>, IX extends ForestIndex<IX, CONTENT_ID>, CONTENT_ID extends Serializable> {
 	
 	/**
 	 * Rebuild (drop and create) all indexes for given forestTreeType.
@@ -31,18 +31,20 @@ public interface ForestContentService<C extends ForestContent<C, IX, CONTENT_ID>
 	/**
 	 * Creates index for given content.
 	 * 
-	 * @param content
+	 * @param contentId
+	 * @param parentContentId content's parent id
 	 * @return
 	 */
-	C createIndex(C content);
+	IX createIndex(String forestTreeType, CONTENT_ID contentId, CONTENT_ID parentContentId);
 	
 	/**
 	 * Updates index for given content.
 	 * 
-	 * @param content
+	 * @param contentId
+	 * @param parentContentId content's parent id
 	 * @return
 	 */
-	C updateIndex(C content);
+	IX updateIndex(String forestTreeType, CONTENT_ID contentId, CONTENT_ID parentContentId);
 	
 	/**
 	 * Deletes indexes for given content.
@@ -50,7 +52,7 @@ public interface ForestContentService<C extends ForestContent<C, IX, CONTENT_ID>
 	 * @param content
 	 * @return
 	 */
-	C deleteIndex(C content);
+	IX deleteIndex(CONTENT_ID contentId);
 	
 	/**
 	 * Finds roots
@@ -62,23 +64,22 @@ public interface ForestContentService<C extends ForestContent<C, IX, CONTENT_ID>
 	Page<C> findRoots(String forestTreeType, Pageable pageable);
 	
 	/**
-	 * Finds direct children for given parent
+	 * Finds direct children for given content
 	 * 
-	 * @param parent
+	 * @param contentId
 	 * @param pageable
 	 * @return
 	 */
-	Page<C> findDirectChildren(C parent, Pageable pageable);
+	Page<C> findDirectChildren(CONTENT_ID contentId, Pageable pageable);
 	
 	/**
-	 * Finds all children for given parent r
-	 * ecursively by forest index
+	 * Finds all children for given content recursively by forest index
 	 * 
-	 * @param parent
+	 * @param contentId
 	 * @param pageable
 	 * @return
 	 */
-	Page<C> findAllChildren(C parent, Pageable pageable);
+	Page<C> findAllChildren(CONTENT_ID contentId, Pageable pageable);
 	
 	/**
 	 * Returns all content parents
@@ -86,6 +87,6 @@ public interface ForestContentService<C extends ForestContent<C, IX, CONTENT_ID>
 	 * @param content
 	 * @return
 	 */
-	List<C> findAllParents(C content, Sort sort);
+	List<C> findAllParents(CONTENT_ID contentId, Sort sort);
 
 }

@@ -19,7 +19,7 @@ import eu.bcvsolutions.forest.index.domain.ForestContent;
  * @param <CONTENT_ID> entity = content identifier
  */
 @NoRepositoryBean
-public interface SimpleForestContentRepository<C extends ForestContent<C, ?, CONTENT_ID>, CONTENT_ID extends Serializable>
+public interface SimpleForestContentRepository<C extends ForestContent<?, CONTENT_ID>, CONTENT_ID extends Serializable>
 		extends BaseForestContentRepository<C, CONTENT_ID> {
 
 	/**

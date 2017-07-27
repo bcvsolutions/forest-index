@@ -21,7 +21,7 @@ Build on spring boot, spring data and hibernate.
 
 ## Requirements
 
-* Content has to have identifier
+* Content has to have identifier and parent
 * Any jdbc database can be used (tested on h2, posgresql)
 
 ## Usage
@@ -47,7 +47,7 @@ Add maven dependency to project
 <dependency>
 	<groupId>eu.bcvsolutions.forest.index</groupId>
 	<artifactId>forest-index</artifactId>
-	<version>0.1.0</version>
+	<version>0.2.0</version>
 </dependency>
 ...
 ```
@@ -87,7 +87,7 @@ Initialize repository and service for forest index entity (`@Configuration` can 
 ```java
 import eu.bcvsolutions.forest.index.entity.ForestIndexEntity;
 
-public interface ForestIndexEntityRepository extends ForestIndexRepository<ForestIndexEntity> {
+public interface ForestIndexEntityRepository extends ForestIndexRepository<ForestIndexEntity, Long> {
 }
 ```
 
@@ -132,10 +132,12 @@ import eu.bcvsolutions.forest.index.domain.ForestContent;
 import eu.bcvsolutions.forest.index.domain.ForestIndex;
 
 @Entity
-public class NodeContent implements ForestContent<NodeContent, ForestIndexEntity, Long> {
+public class NodeContent implements ForestContent<ForestIndexEntity, Long> {
+
+	private static final long serialVersionUID = 1L;
 
 	@Id
-	@Column(name = "id")
+	@Column(name = "id", precision = 18, scale = 0)
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
@@ -143,7 +145,9 @@ public class NodeContent implements ForestContent<NodeContent, ForestIndexEntity
 	private String name;
 
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "parent_id", referencedColumnName = "id")
+	@JoinColumn(name = "parent_id", referencedColumnName = "id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
+	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private NodeContent parent;
 
 	@ManyToOne(optional = true)
@@ -155,6 +159,19 @@ public class NodeContent implements ForestContent<NodeContent, ForestIndexEntity
 	@NotEmpty
 	@Column(name = "forest_tree_type", nullable = false)
 	private String forestTreeType = ForestIndex.DEFAULT_TREE_TYPE;
+
+	public NodeContent() {
+	}
+
+	public NodeContent(NodeContent parent, String name) {
+		this.parent = parent;
+		this.name = name;
+	}
+
+	public NodeContent(String forestTreeType, NodeContent parent, String name) {
+		this(parent, name);
+		this.forestTreeType = forestTreeType;
+	}
 
 	public Long getId() {
 		return id;
@@ -182,14 +199,17 @@ public class NodeContent implements ForestContent<NodeContent, ForestIndexEntity
 		this.forestIndex = forestIndex;
 	}
 
-	@Override
 	public NodeContent getParent() {
 		return parent;
 	}
 
-	@Override
 	public void setParent(NodeContent parent) {
 		this.parent = parent;
+	}
+
+	@Override
+	public Long getParentId() {
+		return parent == null ? null : parent.getId();
 	}
 
 	@Override
@@ -216,8 +236,27 @@ import eu.bcvsolutions.forest.index.service.api.ForestContentService;
 
 public interface NodeContentService extends ForestContentService<NodeContent, ForestIndexEntity, Long> {
 
+	/**
+	 * Read node content by given id.
+	 *
+	 * @param id
+	 * @return
+	 */
+	NodeContent get(Long id);
+
+	/**
+	 * Save node content.
+	 *
+	 * @param content
+	 * @return
+	 */
 	NodeContent save(NodeContent content);
 
+	/**
+	 * Delete node content.
+	 *
+	 * @param content
+	 */
 	void delete(NodeContent content);
 }
 ```
@@ -248,16 +287,25 @@ public class DefaultNodeContentService extends AbstractForestContentService<Node
 	}
 
 	@Override
+	@Transactional(readOnly = true)
+	public NodeContent get(Long id) {
+		return repository.findOne(id);
+	}
+
+	@Override
 	@Transactional
 	public NodeContent save(NodeContent content) {
 		Assert.notNull(content);
 		//
 		if (content.getId() == null) {
 			// create new
-			return createIndex(repository.save(content));
+			content = repository.save(content);
+			content.setForestIndex(createIndex(content.getForestTreeType(), content.getId(), content.getParentId()));
+			return content;
 		} else {
 			// update - we need to reindex first
-			return repository.save(updateIndex(content));
+			content.setForestIndex(updateIndex(content.getForestTreeType(), content.getId(), content.getParentId()));
+			return repository.save(content);
 		}
 	}
 
@@ -265,8 +313,12 @@ public class DefaultNodeContentService extends AbstractForestContentService<Node
 	@Transactional
 	public void delete(NodeContent content) {
 		Assert.notNull(content);
-		//
-		repository.delete(deleteIndex(content));
+		// remove all children
+		findAllChildren(content.getId(), null).forEach(child -> {
+			repository.delete(child);
+		});
+		deleteIndex(content.getId());
+		repository.delete(content);
 	}
 }
 ```
