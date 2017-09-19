@@ -11,16 +11,24 @@
 
 	<groupId>eu.bcvsolutions.forest.index</groupId>
 	<artifactId>forest-index</artifactId>
-	<version>0.2.0</version>
+	<version>0.2.1</version>
 	<packaging>jar</packaging>
 
 	<name>Forest Index</name>
 	<description>Indexing and traversing tree structures.</description>
+	<url>http://www.bcvsolutions.eu</url>
 
 	<organization>
 		<name>BCV solutions s.r.o.</name>
 		<url>http://www.bcvsolutions.eu</url>
 	</organization>
+
+	<licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://github.com/bcvsolutions/forest-index/blob/master/LICENSE</url>
+    </license>
+  </licenses>
 
 	<developers>
 		<developer>
@@ -43,29 +51,18 @@
 		<maven.javadoc.failOnError>false</maven.javadoc.failOnError>
 	</properties>
 
-	<repositories>
-		<repository>
-			<id>central</id>
-			<url>http://central.maven.org/maven2/</url>
-		</repository>
-		<repository>
-			<id>alfresco</id>
-			<url>https://artifacts.alfresco.com/nexus/content/repositories/public/</url>
-		</repository>
-	</repositories>
-	
 	<distributionManagement>
 		<snapshotRepository>
 			<id>nexus</id>
 			<name>Nexus Staging repo</name>
 			<url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
 		</snapshotRepository>
-        <repository>
+      <repository>
 			<id>nexus</id>
 			<name>Nexus Staging repo</name>
 			<url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
 		</repository>
-      </distributionManagement>
+  </distributionManagement>
 
 	<dependencies>
 		<dependency>
@@ -100,7 +97,7 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-jpamodelgen</artifactId>
@@ -114,7 +111,7 @@
 				<filtering>true</filtering>
 			</testResource>
 		</testResources>
-		
+
 		<plugins>
 			<plugin>
 				<groupId>com.atlassian.maven.plugins</groupId>
@@ -135,7 +132,7 @@
 					</flowInitContext>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -147,7 +144,7 @@
 					<useIncrementalCompilation>false</useIncrementalCompilation>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.bsc.maven</groupId>
 				<artifactId>maven-processor-plugin</artifactId>
