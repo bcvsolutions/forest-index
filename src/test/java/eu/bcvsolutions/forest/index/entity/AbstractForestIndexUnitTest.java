@@ -2,8 +2,6 @@ package eu.bcvsolutions.forest.index.entity;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * Base forest index entity method tests
@@ -11,7 +9,6 @@ import org.springframework.test.context.junit4.SpringRunner;
  * @author Radek Tomiška
  *
  */
-@RunWith(SpringRunner.class)
 public class AbstractForestIndexUnitTest {
 
 	@Test
