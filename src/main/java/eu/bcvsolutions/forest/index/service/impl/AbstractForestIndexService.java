@@ -187,6 +187,7 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 	}
 	
 	@Override
+	@Transactional
 	public IX dropIndex(CONTENT_ID contentId) {
 		IX index = repository.findOneByContentId(contentId);
 		//

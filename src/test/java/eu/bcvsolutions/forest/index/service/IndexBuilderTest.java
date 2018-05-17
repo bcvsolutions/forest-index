@@ -73,6 +73,7 @@ public class IndexBuilderTest {
 		assertEquals(2, repository.findAllChildren(b, null).getTotalElements()); // all children count by query
 		
 		assertEquals(2, (b.getRgt() - b.getLft()) / 2);
+		assertEquals(2, b.getChildrenCount());
 		
 		assertTrue(ba.getLft().compareTo(ba.getParent().getLft()) > 0);
 		assertTrue(ba.getRgt().compareTo(ba.getParent().getRgt()) < 0);

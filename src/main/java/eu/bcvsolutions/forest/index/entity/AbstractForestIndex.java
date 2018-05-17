@@ -13,6 +13,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import eu.bcvsolutions.forest.index.domain.ForestIndex;
@@ -122,32 +124,27 @@ public abstract class AbstractForestIndex<IX extends ForestIndex<IX, CONTENT_ID>
 	 */
 	@Override
 	public int hashCode() {
-		int hash = 0;
-		hash += (getId() != null ? getId().hashCode() : 0);
-		return hash;
+		 return new HashCodeBuilder()
+				 .append(id)
+				 .toHashCode();
 	}
 
 	/**
 	 * Based on entity identifier
 	 */
 	@Override
-	public boolean equals(Object object) {
-		if (object == null || !object.getClass().equals(getClass())) {
+	public boolean equals(final Object o) {
+		if (!(o instanceof AbstractForestIndex<?,?>)) {
 			return false;
 		}
-
-		AbstractForestIndex<?,?> other = (AbstractForestIndex<?, ?>) object;
-		if ((this.getId() == null && other.getId() != null)
-				|| (this.getId() != null && !this.getId().equals(other.getId()))
-				|| (this.getId() == null && other.getId() == null && this != other)) {
-			return false;
-		}
-
-		return true;
+		AbstractForestIndex<?,?> that = (AbstractForestIndex<?,?>) o;
+		return new EqualsBuilder()
+				.append(id, that.id)
+				.isEquals();
 	}
 	
 	@Override
 	public String toString() {
-		return "forest index [" + forestTreeType + ":" + id + "] [" + lft + "-" + rgt + "] content [" + getContentId() + "]";
-	}
+		return String.format("Forest index [%s:%s] [%s-%s] content [%s]", forestTreeType, id, lft, rgt, getContentId());
+	}	
 }

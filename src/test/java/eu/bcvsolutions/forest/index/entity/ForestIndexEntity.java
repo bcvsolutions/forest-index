@@ -33,7 +33,11 @@ public class ForestIndexEntity extends AbstractForestIndex<ForestIndexEntity, Lo
 	}
 	
 	public ForestIndexEntity(ForestIndexEntity parent) {
-		super(null, parent);
+		this(null, parent);
+	}
+	
+	public ForestIndexEntity(String forestTreeType, ForestIndexEntity parent) {
+		super(forestTreeType, parent);
 	}
 	
 	@Override
