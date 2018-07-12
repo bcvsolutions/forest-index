@@ -154,7 +154,7 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 			if (parentIndex == null) {
 				// reindex parent recursively
 				// parentIndex = index(content.getParent()).getForestIndex();
-				throw new UnsupportedOperationException("Parent doesn't have index - index parent at first.");
+				throw new UnsupportedOperationException(String.format("Parent [%s] doesn't have index - index parent at first.", parentContentId));
 			}
 		} else {
 			// generate syntetic root - we want to support more content roots
