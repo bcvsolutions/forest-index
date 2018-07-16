@@ -58,8 +58,8 @@ public class DefaultNodeContentService extends AbstractForestContentService<Node
 	public void delete(NodeContent content) {
 		Assert.notNull(content);
 		// remove all children
-		findAllChildren(content.getId(), null).forEach(child -> {
-			repository.delete(child);
+		findDirectChildren(content.getId(), null).forEach(child -> {
+			this.delete(child);
 		});
 		deleteIndex(content.getId());
 		repository.delete(content);

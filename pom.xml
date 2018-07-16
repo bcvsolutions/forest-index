@@ -11,7 +11,7 @@
 
 	<groupId>eu.bcvsolutions.forest.index</groupId>
 	<artifactId>forest-index</artifactId>
-	<version>0.2.1</version>
+	<version>0.3.0</version>
 	<packaging>jar</packaging>
 
 	<name>Forest Index</name>
@@ -49,6 +49,12 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<spring.profiles.active>default</spring.profiles.active>
 		<maven.javadoc.failOnError>false</maven.javadoc.failOnError>
+		
+		<!-- Sonar-JaCoCo properties-->
+		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+		<sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
+		<sonar.language>java</sonar.language>
 	</properties>
 
 	<distributionManagement>
@@ -179,6 +185,25 @@
 								<source>target/metamodel</source>
 							</sources>
 						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<!-- Sonar-JaCoCo integration plugin -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.7.6.201602180812</version>
+				<configuration>
+					<destFile>${sonar.jacoco.reportPath}</destFile>
+					<append>true</append>
+				</configuration>
+				<executions>
+					<execution>
+						<id>agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
 					</execution>
 				</executions>
 			</plugin>

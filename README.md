@@ -34,7 +34,7 @@ Add maven repository
 ...
 <repository>
 	<id>nexus</id>
-	<url>https://nexus.bcvsolutions.eu/repository/maven-releases/</url>
+	<url>https://nexus.bcvsolutions.eu/repository/maven-public-releases/</url>
 </repository>
 ...
 ```
@@ -47,7 +47,7 @@ Add maven dependency to project
 <dependency>
 	<groupId>eu.bcvsolutions.forest.index</groupId>
 	<artifactId>forest-index</artifactId>
-	<version>0.2.0</version>
+	<version>0.3.0</version>
 </dependency>
 ...
 ```

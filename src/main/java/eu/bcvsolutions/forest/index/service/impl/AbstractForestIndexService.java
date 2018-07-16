@@ -8,7 +8,6 @@ import java.util.UUID;
 import javax.persistence.EntityManager;
 
 import org.springframework.core.GenericTypeResolver;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
@@ -18,6 +17,8 @@ import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
 
 /**
  * Persists, builds, clears forest indexes 
+ * 
+ * - TODO: flush and clear is called manually - use new spring data version with @Modifying annotation (auto flush and auto clear) 
  * 
  * @author Radek Tomiška
  *
@@ -56,7 +57,8 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 			return;
 		}
 		recountIndexes(countIndex(root));
-		
+		entityManager.flush();
+		entityManager.clear();
 	}
 	
 	/**
@@ -110,6 +112,8 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 			forestIndex.setRgt(null);
 			recountIndexes(countIndex(forestIndex));
 		}
+		entityManager.flush();
+		entityManager.clear();
 		return forestIndex;
 	}
 	
@@ -139,6 +143,8 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 			repository.updateIndexes(forestIndex.getId(), forestIndex.getLft(), forestIndex.getRgt(), forestIndex.getParent());
 		}
 		//
+		entityManager.flush();
+		entityManager.clear();
 		return forestIndex;
 	}
 	
@@ -154,7 +160,7 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 			if (parentIndex == null) {
 				// reindex parent recursively
 				// parentIndex = index(content.getParent()).getForestIndex();
-				throw new UnsupportedOperationException("Parent doesn't have index - index parent at first.");
+				throw new UnsupportedOperationException(String.format("Parent [%s] doesn't have index - index parent at first.", parentContentId));
 			}
 		} else {
 			// generate syntetic root - we want to support more content roots
@@ -187,7 +193,10 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 	}
 	
 	@Override
+	@Transactional
 	public IX dropIndex(CONTENT_ID contentId) {
+		Assert.notNull(contentId);
+		//
 		IX index = repository.findOneByContentId(contentId);
 		//
 		if (index != null) {
@@ -205,17 +214,23 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 		if (closeGap) {
 			repository.afterDelete(forestIndex.getForestTreeType(), forestIndex.getLft(), forestIndex.getRgt());
 		}
+		entityManager.flush();
+		entityManager.clear();
 	}
 	
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+	@Transactional
 	public void dropIndexes(String forestTreeType) {
 		repository.dropIndexes(forestTreeType);
+		entityManager.flush();
+		entityManager.clear();
 	}
 	
 	@Override
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void clearIndexes(String forestTreeType) { // TODO: tree type
+	@Transactional
+	public void clearIndexes(String forestTreeType) {
 		repository.clearIndexes(forestTreeType);
+		entityManager.flush();
+		entityManager.clear();
 	}
 }

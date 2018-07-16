@@ -18,6 +18,8 @@ public interface ForestIndexService<IX extends ForestIndex<IX, CONTENT_ID>, CONT
 	/**
 	 * Rebuild all indexes (clears lft and rgt) of given type. 
 	 * 
+	 * Index has to be rebuilt respectively tree structure - from root to children. 
+	 * 
 	 * @param forestTreeType
 	 */
 	void rebuild(String forestTreeType);
@@ -54,6 +56,8 @@ public interface ForestIndexService<IX extends ForestIndex<IX, CONTENT_ID>, CONT
 	
 	/**
 	 * Creates or updates index for given content.
+	 * 
+	 * Make sure parent is correctly indexed.
 	 * 
 	 * @param contentId
 	 * @param parentContentId content's parent id

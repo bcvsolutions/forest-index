@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.forest.index.domain.ForestIndex;
 import eu.bcvsolutions.forest.index.entity.ForestIndexEntity;
@@ -34,19 +34,13 @@ import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class DefaultNodeContentServiceTest {
+@Transactional
+public class DefaultNodeContentServiceIntegrationTest {
 	
-	@Autowired
-	private ForestIndexEntityRepository indexRepository;
-	@Autowired
-	private ForestIndexService<ForestIndexEntity, Long> indexService;
-	@Autowired
-	private NodeContentRepository repository;
-	@Autowired
-	private NodeContentService service;
-//	@Autowired
-//	private PlatformTransactionManager platformTransactionManager;
-//	private TransactionTemplate template;
+	@Autowired private ForestIndexService<ForestIndexEntity, Long> indexService;
+	@Autowired private ForestIndexEntityRepository indexRepository;
+	@Autowired private NodeContentRepository repository;
+	@Autowired private NodeContentService service;
 	//
 	private Random r = new Random();
 	private NodeContent root = null;
@@ -55,12 +49,6 @@ public class DefaultNodeContentServiceTest {
 	private NodeContent ba = null;
 	private NodeContent bb = null;
 	private List<NodeContent> children = new ArrayList<>();
-	
-	@After
-	public void clear() {
-		repository.deleteAll();
-		indexRepository.deleteAll();
-	}
 	
 	@Test
 	public void testSaveTreeRoots() {
@@ -129,28 +117,6 @@ public class DefaultNodeContentServiceTest {
 		assertEquals(5L, root.getForestIndex().getRgt().longValue());
 	}
 	
-	private void createTestTree() {
-		root = service.save(new NodeContent(null, "root"));
-		NodeContent rootChild = service.save(new NodeContent(root, "new root"));
-		a = service.save(new NodeContent(rootChild, "a"));
-		b = service.save(new NodeContent(rootChild, "b"));
-		service.save(new NodeContent(a, "aa"));
-		service.save(new NodeContent(a, "ab"));
-		ba = service.save(new NodeContent(b, "ba"));
-		bb = service.save(new NodeContent(b, "bb"));		
-		
-		assertEquals(8, repository.count());
-		
-		List<NodeContent> children = repository.findDirectChildren(rootChild, null).getContent();
-		assertEquals(2, children.size());
-	
-		root = repository.findOne(root.getId());
-		a = repository.findOne(a.getId());
-		b = repository.findOne(b.getId());
-		ba = repository.findOne(ba.getId());
-		bb = repository.findOne(bb.getId());
-	}
-	
 	@Test
 	public void testFindByForestIndex() {
 		createTestTree();
@@ -208,6 +174,7 @@ public class DefaultNodeContentServiceTest {
 		NodeContent root = roots.getContent().get(0);
 		
 		assertEquals(7, repository.count());
+		assertEquals(8, indexRepository.count()); // +1 - syntetic node is created
 		assertEquals(6, (root.getForestIndex().getRgt() - root.getForestIndex().getLft()) / 2);
 	}
 	
@@ -216,13 +183,19 @@ public class DefaultNodeContentServiceTest {
 		createTestTree();
 		
 		assertEquals(8, repository.count());
+		assertEquals(9, indexRepository.count()); // +1 - syntetic node is created
 		
 		service.delete(b);	
 		
+		assertEquals(6, indexRepository.count()); // +1 - syntetic node is created
+		
 		Page<NodeContent> roots = service.findRoots(ForestIndex.DEFAULT_TREE_TYPE, null);
+		Assert.assertEquals(1, roots.getTotalElements());
 		NodeContent root = roots.getContent().get(0);
 		
-		assertEquals(5, repository.count());
+		assertEquals(4, service.findAllChildren(root.getId(), null).getTotalElements());
+		
+		root = service.get(root.getId());
 		assertEquals(4, (root.getForestIndex().getRgt() - root.getForestIndex().getLft()) / 2);
 	}
 	
@@ -231,6 +204,7 @@ public class DefaultNodeContentServiceTest {
 		testFindByForestIndex();
 		// check initial state
 		assertEquals(8, repository.count());
+		assertEquals(9, indexRepository.count()); // +1 - syntetic node is created
 		assertEquals(2, repository.findAllChildren(b, null).getTotalElements());
 		assertEquals(2, repository.findAllChildren(a, null).getTotalElements());
 		//
@@ -245,16 +219,7 @@ public class DefaultNodeContentServiceTest {
 		assertEquals(3, repository.findDirectChildren(a, null).getTotalElements());
 		assertEquals(7, repository.findAllChildren(root, null).getTotalElements());
 		assertEquals(7, (root.getForestIndex().getRgt() - root.getForestIndex().getLft()) / 2);
-		
-	}
-	
-	public void generateTree(int nodeCount) {
-		long startTime = System.currentTimeMillis();
-		// create parrent
-		NodeContent root = service.save(new NodeContent(null, "root"));
-		int counter = generateChildren(nodeCount - 1, 0, root);
-		//
-		System.out.println("[" + counter + "] nodes generated: " + (System.currentTimeMillis() - startTime) + "ms");
+		assertEquals(9, indexRepository.count()); // +1 - syntetic node is created
 	}
 	
 	@Test
@@ -277,29 +242,6 @@ public class DefaultNodeContentServiceTest {
 		root = roots.getContent().get(0);
 		assertEquals(nodeCount - 1, (root.getForestIndex().getRgt() - root.getForestIndex().getLft()) / 2);
 		assertEquals(nodeCount - 1, repository.findAllChildren(root, null).getTotalElements());
-	}
-	
-	
-	private int generateChildren(int total, int counter, NodeContent parent) {
-		int childrenCount = r.nextInt(50) + 1;
-		for(int i = 0; i < childrenCount; i++) {
-			NodeContent node = service.save(new NodeContent(parent, (parent == null ? "" : parent.getId() + "_") + i));
-			if(children.size() < 25) {
-				children.add(node);
-			}
-			if ((i + counter + 1) >= total) {
-				return i + counter + 1;
-			}
-			if((i + counter + 1) % 1000 == 0) {
-				System.out.println("[" + (i + counter + 1) + "] nodes generated ...");
-			}
-		}
-		NodeContent firstChild = children.remove(0);
-		counter = generateChildren(total, counter + childrenCount, firstChild);
-		if (counter >= total) {
-			return counter;
-		}
-		return counter;		
 	}
 	
 	@Test
@@ -343,17 +285,56 @@ public class DefaultNodeContentServiceTest {
 		Assert.assertEquals(rootCount - 1, service.findAllChildren(root.getId(), null).getTotalElements());
 	}
 	
-	/**
-	 * Creates new template by platformTransactionManager
-	 */
-//	private void prepareTransactionTemplate() {
-//		template = new TransactionTemplate(platformTransactionManager);
-//	}
-//	
-//	private TransactionTemplate getTransactionTemplate() {
-//		if (template == null) {
-//			prepareTransactionTemplate();
-//		}
-//		return template;
-//	}
+	private void createTestTree() {
+		root = service.save(new NodeContent(null, "root"));
+		NodeContent rootChild = service.save(new NodeContent(root, "new root"));
+		a = service.save(new NodeContent(rootChild, "a"));
+		b = service.save(new NodeContent(rootChild, "b"));
+		service.save(new NodeContent(a, "aa"));
+		service.save(new NodeContent(a, "ab"));
+		ba = service.save(new NodeContent(b, "ba"));
+		bb = service.save(new NodeContent(b, "bb"));		
+		
+		assertEquals(8, repository.count());
+		
+		List<NodeContent> children = repository.findDirectChildren(rootChild, null).getContent();
+		assertEquals(2, children.size());
+	
+		root = repository.findOne(root.getId());
+		a = repository.findOne(a.getId());
+		b = repository.findOne(b.getId());
+		ba = repository.findOne(ba.getId());
+		bb = repository.findOne(bb.getId());
+	}
+	
+	private void generateTree(int nodeCount) {
+		long startTime = System.currentTimeMillis();
+		// create parrent
+		NodeContent root = service.save(new NodeContent(null, "root"));
+		int counter = generateChildren(nodeCount - 1, 0, root);
+		//
+		System.out.println("[" + counter + "] nodes generated: " + (System.currentTimeMillis() - startTime) + "ms");
+	}
+	
+	private int generateChildren(int total, int counter, NodeContent parent) {
+		int childrenCount = r.nextInt(50) + 1;
+		for(int i = 0; i < childrenCount; i++) {
+			NodeContent node = service.save(new NodeContent(parent, (parent == null ? "" : parent.getId() + "_") + i));
+			if(children.size() < 25) {
+				children.add(node);
+			}
+			if ((i + counter + 1) >= total) {
+				return i + counter + 1;
+			}
+			if((i + counter + 1) % 1000 == 0) {
+				System.out.println("[" + (i + counter + 1) + "] nodes generated ...");
+			}
+		}
+		NodeContent firstChild = children.remove(0);
+		counter = generateChildren(total, counter + childrenCount, firstChild);
+		if (counter >= total) {
+			return counter;
+		}
+		return counter;		
+	}
 }

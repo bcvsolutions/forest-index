@@ -24,6 +24,9 @@ public interface ForestContentService<C extends ForestContent<IX, CONTENT_ID>, I
 	
 	/**
 	 * Rebuild (drop and create) all indexes for given forestTreeType.
+	 * 
+	 * Index has to be rebuilt respectively tree structure - from root to children.
+	 * 
 	 * @param forestTreeType
 	 */
 	void rebuildIndexes(String forestTreeType);
@@ -39,6 +42,8 @@ public interface ForestContentService<C extends ForestContent<IX, CONTENT_ID>, I
 	
 	/**
 	 * Updates index for given content.
+	 * 
+	 * Make sure parent is correctly indexed.
 	 * 
 	 * @param contentId
 	 * @param parentContentId content's parent id
