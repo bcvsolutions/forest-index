@@ -90,12 +90,16 @@ public abstract class BaseForestContentService<C extends ForestContent<IX, CONTE
 	@Override
 	@Transactional(readOnly = true)
 	public Page<C> findDirectChildren(CONTENT_ID contentId, Pageable pageable) {
+		Assert.notNull(contentId);
+		//
 		return repository.findDirectChildren(repository.findOne(contentId), pageable);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public Page<C> findAllChildren(CONTENT_ID contentId, Pageable pageable) {
+		Assert.notNull(contentId);
+		//
 		return repository.findAllChildren(repository.findOne(contentId), pageable);
 	}
 

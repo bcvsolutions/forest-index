@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.bcvsolutions.forest.index.domain.ForestIndex;
 import eu.bcvsolutions.forest.index.entity.ForestIndexEntity;
@@ -27,12 +27,11 @@ import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class IndexBuilderTest {
+@Transactional
+public class IndexBuilderIntegrationTest {
 	
-	@Autowired
-	private ForestIndexEntityRepository repository;
-	@Autowired
-	private ForestIndexService<ForestIndexEntity, Long> service;
+	@Autowired private ForestIndexEntityRepository repository;
+	@Autowired private ForestIndexService<ForestIndexEntity, Long> service;
 	//
 	private Random r = new Random();
 	private ForestIndexEntity a = null;
@@ -40,11 +39,6 @@ public class IndexBuilderTest {
 	private ForestIndexEntity ba = null;
 	private ForestIndexEntity bb = null;
 	private List<ForestIndexEntity> children = new ArrayList<>();
-	
-	@After
-	public void clear() {
-		repository.deleteAll();
-	}
 	
 	@Test
 	public void saveTree() {
