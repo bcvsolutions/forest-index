@@ -1,6 +1,6 @@
 # Forest Index
 
-Indexing and traversing tree structures (hierarchies). Additional `forest index` can be added to custom `content` (=> entity). The content will have reference to index and can use him in `hql spring data queries` etc. One forest index could be used for different trees - see `forestTreeType` attribute.
+**Indexing** and traversing tree structures (hierarchies). Additional `forest index` can be added to custom `content` (=> entity). The content will have reference to index and can use him in `hql spring data queries` etc. One forest index could be used for different trees - see `forestTreeType` attribute.
 
 Features:
 * Get all tree node children in "one select".  
