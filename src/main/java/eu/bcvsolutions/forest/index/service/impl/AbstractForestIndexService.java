@@ -36,8 +36,8 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 	public AbstractForestIndexService(
 			ForestIndexRepository<IX, CONTENT_ID> repository,
 			EntityManager entityManager) {
-		Assert.notNull(repository);
-		Assert.notNull(entityManager);
+		Assert.notNull(repository, "Index repository is required.");
+		Assert.notNull(entityManager, "Entity manager is required.");
 		//
 		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), ForestIndexService.class);
 		indexClass = (Class<IX>)genericTypes[0];
@@ -67,7 +67,7 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 	 * @param parent
 	 */
 	private void recountIndexes(IX parent) {
-		Assert.notNull(parent);
+		Assert.notNull(parent, "Parent index is required.");
 		//
 		repository.findDirectChildren(parent).forEach(forestIndex -> {
 			recountIndexes(countIndex(forestIndex));
@@ -77,7 +77,7 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 	@Override
 	@Transactional
 	public IX saveNode(IX forestIndex) {
-		Assert.notNull(forestIndex);
+		Assert.notNull(forestIndex, "Index is required.");
 		entityManager.detach(forestIndex); // we need to load previous index value before flush
 		//
 		boolean parentChange = false;
@@ -118,8 +118,8 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 	}
 	
 	private IX countIndex(IX forestIndex) {
-		Assert.notNull(forestIndex);
-		Assert.notNull(forestIndex.getId());
+		Assert.notNull(forestIndex, "Index is required.");
+		Assert.notNull(forestIndex.getId(), "Index has to be persisted.");
 		//
 		// we need new data in next queries
 		entityManager.flush();
@@ -136,7 +136,7 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 				repository.updateParent(previousRootId, forestIndex);
 			}
 		} else { // append a new node as last right child of his parent
-			Long parentRgt = repository.findOne(forestIndex.getParent().getId()).getRgt();
+			Long parentRgt = repository.findById(forestIndex.getParent().getId()).get().getRgt();
 			repository.beforeNodeInsert(forestIndex.getForestTreeType(), parentRgt);
 			forestIndex.setLft(parentRgt);
 			forestIndex.setRgt(parentRgt + 1L);
@@ -195,7 +195,7 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 	@Override
 	@Transactional
 	public IX dropIndex(CONTENT_ID contentId) {
-		Assert.notNull(contentId);
+		Assert.notNull(contentId, "Content identifier is required.");
 		//
 		IX index = repository.findOneByContentId(contentId);
 		//
@@ -208,7 +208,7 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 	@Override
 	@Transactional
 	public void deleteNode(IX forestIndex, boolean closeGap) {
-		Assert.notNull(forestIndex);
+		Assert.notNull(forestIndex, "Index is required.");
 		//
 		repository.delete(forestIndex.getForestTreeType(), forestIndex.getLft(), forestIndex.getRgt());
 		if (closeGap) {

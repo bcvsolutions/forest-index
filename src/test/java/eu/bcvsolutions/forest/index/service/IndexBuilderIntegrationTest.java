@@ -56,10 +56,10 @@ public class IndexBuilderIntegrationTest {
 		List<ForestIndexEntity> children = repository.findDirectChildren(oldroot);
 		assertEquals(2, children.size());
 		
-		a = repository.findOne(a.getId());
-		b = repository.findOne(b.getId());
-		ba = repository.findOne(ba.getId());
-		bb = repository.findOne(bb.getId());
+		a = repository.findById(a.getId()).get();
+		b = repository.findById(b.getId()).get();
+		ba = repository.findById(ba.getId()).get();
+		bb = repository.findById(bb.getId()).get();
 		
 		assertEquals(1L, root.getLft().longValue());
 		assertEquals(7, (root.getRgt() - root.getLft()) / 2); // all children count
@@ -109,16 +109,16 @@ public class IndexBuilderIntegrationTest {
 		
 		service.clearIndexes(ForestIndex.DEFAULT_TREE_TYPE);
 		
-		b = repository.findOne(b.getId());
+		b = repository.findById(b.getId()).get();
 		assertEquals(null, b.getLft());
 		assertEquals(null, b.getLft());
 		//
 		service.rebuild(ForestIndex.DEFAULT_TREE_TYPE);
 		//	
 		ForestIndexEntity root = repository.findRoot(ForestIndex.DEFAULT_TREE_TYPE);
-		b = repository.findOne(b.getId());
-		ba = repository.findOne(ba.getId());
-		bb = repository.findOne(bb.getId());
+		b = repository.findById(b.getId()).get();
+		ba = repository.findById(ba.getId()).get();
+		bb = repository.findById(bb.getId()).get();
 		
 		assertEquals(1L, root.getLft().longValue());
 		assertEquals(7, (root.getRgt() - root.getLft()) / 2);
@@ -142,7 +142,7 @@ public class IndexBuilderIntegrationTest {
 		b.setParent(a);
 		service.saveNode(b);
 		//
-		a = repository.findOne(a.getId());
+		a = repository.findById(a.getId()).get();
 		ForestIndexEntity root = repository.findRoot(ForestIndex.DEFAULT_TREE_TYPE);
 		assertEquals(5, repository.findAllChildren(a, null).getTotalElements());
 		assertEquals(5, (a.getRgt() - a.getLft()) / 2);

@@ -36,8 +36,8 @@ public abstract class BaseForestContentService<C extends ForestContent<IX, CONTE
 
 	public BaseForestContentService(ForestIndexService<IX, CONTENT_ID> forestIndexService,
 			BaseForestContentRepository<C, CONTENT_ID> repository) {
-		Assert.notNull(forestIndexService);
-		Assert.notNull(repository);
+		Assert.notNull(forestIndexService, "Index service is required.");
+		Assert.notNull(repository, "Content repository is required.");
 		//
 		this.forestIndexService = forestIndexService;
 		this.repository = repository;
@@ -61,7 +61,7 @@ public abstract class BaseForestContentService<C extends ForestContent<IX, CONTE
 	 * @param parent
 	 */
 	private void recountIndexes(C parent) {
-		Assert.notNull(parent);
+		Assert.notNull(parent, "Parent content is required.");
 		//
 		repository.findDirectChildren(parent, null).forEach(content -> {
 			createIndex(content.getForestTreeType(), content.getId(), content.getParentId());
@@ -90,22 +90,22 @@ public abstract class BaseForestContentService<C extends ForestContent<IX, CONTE
 	@Override
 	@Transactional(readOnly = true)
 	public Page<C> findDirectChildren(CONTENT_ID contentId, Pageable pageable) {
-		Assert.notNull(contentId);
+		Assert.notNull(contentId, "Content identifier is required.");
 		//
-		return repository.findDirectChildren(repository.findOne(contentId), pageable);
+		return repository.findDirectChildren(repository.findById(contentId).get(), pageable);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public Page<C> findAllChildren(CONTENT_ID contentId, Pageable pageable) {
-		Assert.notNull(contentId);
+		Assert.notNull(contentId, "Content identifier is required.");
 		//
-		return repository.findAllChildren(repository.findOne(contentId), pageable);
+		return repository.findAllChildren(repository.findById(contentId).get(), pageable);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public List<C> findAllParents(CONTENT_ID contentId, Sort sort) {
-		return repository.findAllParents(repository.findOne(contentId), sort);
+		return repository.findAllParents(repository.findById(contentId).get(), sort);
 	}
 }

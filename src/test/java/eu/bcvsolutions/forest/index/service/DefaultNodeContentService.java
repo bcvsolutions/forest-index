@@ -33,13 +33,13 @@ public class DefaultNodeContentService extends AbstractForestContentService<Node
 	@Override
 	@Transactional(readOnly = true)
 	public NodeContent get(Long id) {
-		return repository.findOne(id);
+		return repository.findById(id).orElse(null);
 	}
 	
 	@Override
 	@Transactional
 	public NodeContent save(NodeContent content) {
-		Assert.notNull(content);
+		Assert.notNull(content, "Content is required.");
 		//
 		if (content.getId() == null) {
 			// create new
@@ -56,7 +56,7 @@ public class DefaultNodeContentService extends AbstractForestContentService<Node
 	@Override
 	@Transactional
 	public void delete(NodeContent content) {
-		Assert.notNull(content);
+		Assert.notNull(content, "Content is required.");
 		// remove all children
 		findDirectChildren(content.getId(), null).forEach(child -> {
 			this.delete(child);
