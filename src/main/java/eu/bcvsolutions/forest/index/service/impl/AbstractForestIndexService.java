@@ -40,7 +40,9 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 		Assert.notNull(entityManager, "Entity manager is required.");
 		//
 		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), ForestIndexService.class);
-		indexClass = (Class<IX>)genericTypes[0];
+		//
+		Assert.notEmpty(genericTypes, "Wrong generic types is given, fix class definition");
+		indexClass = (Class<IX>) genericTypes[0];
 		//
 		this.repository = repository;
 		this.entityManager = entityManager;

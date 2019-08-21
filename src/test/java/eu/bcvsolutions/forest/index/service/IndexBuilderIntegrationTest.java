@@ -132,6 +132,18 @@ public class IndexBuilderIntegrationTest {
 	}
 	
 	@Test
+	public void testRebuildEmptyTree() {
+		service.rebuild(ForestIndex.DEFAULT_TREE_TYPE);
+		//
+		assertEquals(0, repository.count());
+	}
+	
+	@Test(expected = UnsupportedOperationException.class)
+	public void testIndexParentRecursivelyISNotSupported() {
+		service.index(ForestIndex.DEFAULT_TREE_TYPE, 1L, 1L);
+	}
+	
+	@Test
 	public void testMoveNode() {
 		saveTree();
 		// check initial state
