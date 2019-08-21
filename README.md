@@ -17,7 +17,7 @@ Unimplemented operations:
 * lock tree type, when index building is in progress.
 * direct children order
 
-Build on spring boot, spring data and hibernate.
+Build on spring boot 2, spring data and hibernate.
 
 ## Requirements
 
@@ -47,7 +47,7 @@ Add maven dependency to project
 <dependency>
 	<groupId>eu.bcvsolutions.forest.index</groupId>
 	<artifactId>forest-index</artifactId>
-	<version>0.3.0</version>
+	<version>1.0.0</version>
 </dependency>
 ...
 ```
@@ -343,6 +343,11 @@ Sometimes, maybe every time, is not possible to generalize `AbstractForestConten
 * Go to `Project` -> `Properties` -> `Java Compliler` -> `Annotation Processing` -> check `Enable project specific settings` and fill **target/metamodel** as `Generated source directory`.
 * Go to `Project` -> `Properties` -> `Java Compliler` -> `Annotation Processing` -> `Factory path` -> check `Enable project specific settings` and add external jar `hibernate-jpamodelgen.jar` (version 5.x.x). Artefact could be found in local maven repository or downloaded from any public maven repository.
 * remove Eclipse pom.xml error - `Plugin execution not covered by lifecycle configuration: org.bsc.maven:maven-processor-plugin:3.3.1:process (execution: process, phase: generate-sources)` - go to `Window` -> `Preferences` -> `Maven` -> `Errors/Warnings` -> set `Plugins execution not covered by lifecycle configuration` to `warning`.
+
+#### Ignore warnings in generated classes
+
+Go to `Project` -> `Properties` -> `Java Build Path` -> `Source` -> set `Ignore optional compile problems` to `Yes`.
+
 
 [Other IDEs](https://docs.jboss.org/hibernate/jpamodelgen/1.0/reference/en-US/html_single/#d0e319)
 
