@@ -62,6 +62,7 @@ public interface ForestIndexService<IX extends ForestIndex<IX, CONTENT_ID>, CONT
 	 * @param contentId
 	 * @param parentContentId content's parent id
 	 * @return
+	 * @throws IllegalArgumentException when index class does not define default constructor.
 	 */
 	IX index(String forestTreeType, CONTENT_ID contentId, CONTENT_ID parentContentId);
 	

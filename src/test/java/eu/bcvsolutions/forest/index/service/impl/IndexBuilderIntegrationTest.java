@@ -220,6 +220,32 @@ public class IndexBuilderIntegrationTest {
 		Assert.assertEquals(7, (root.getRgt() - root.getLft()) / 2);
 	}
 	
+	@Test(expected = IllegalArgumentException.class)
+	public void testMoveNodeWithoutLftIndexIsGiven() {
+		testSaveTree();
+		// check initial state
+		Assert.assertEquals(8, repository.count());
+		Assert.assertEquals(2, repository.findAllChildren(b, null).getTotalElements());
+		Assert.assertEquals(2, repository.findAllChildren(a, null).getTotalElements());
+		//
+		b.setParent(a);
+		b.setLft(null);
+		service.saveNode(b);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testMoveNodeWithoutRgtIndexIsGiven() {
+		testSaveTree();
+		// check initial state
+		Assert.assertEquals(8, repository.count());
+		Assert.assertEquals(2, repository.findAllChildren(b, null).getTotalElements());
+		Assert.assertEquals(2, repository.findAllChildren(a, null).getTotalElements());
+		//
+		b.setParent(a);
+		b.setRgt(null);
+		service.saveNode(b);
+	}
+	
 	@Test
 	public void testTreeRebuildBulk() {
 		int nodeCount = 100;
