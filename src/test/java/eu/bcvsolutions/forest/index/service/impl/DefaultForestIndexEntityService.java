@@ -1,4 +1,4 @@
-package eu.bcvsolutions.forest.index.service;
+package eu.bcvsolutions.forest.index.service.impl;
 
 import javax.persistence.EntityManager;
 

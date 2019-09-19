@@ -100,7 +100,7 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 		forestIndex = repository.save(forestIndex);
 		if (!parentChange) {
 			// index new node only
-			if (forestIndex.getId() == null || forestIndex.getLft() == null || forestIndex.getRgt() == null) {
+			if (forestIndex.getLft() == null || forestIndex.getRgt() == null) {
 				return countIndex(forestIndex);
 			}
 		} else { // index node, it parent changes
@@ -165,25 +165,17 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 				throw new UnsupportedOperationException(String.format("Parent [%s] doesn't have index - index parent at first.", parentContentId));
 			}
 		} else {
-			// generate syntetic root - we want to support more content roots
+			// generate synthetic root - we want to support more content roots
 			parentIndex = repository.findRoot(forestTreeType);
 			if (parentIndex == null) {
-				try {
-					parentIndex = indexClass.newInstance();
-					parentIndex.setForestTreeType(forestTreeType);
-					parentIndex = this.saveNode(parentIndex);
-				} catch (InstantiationException | IllegalAccessException o_O) {
-					throw new IllegalArgumentException(MessageFormat.format("[{0}] does not support creating new instance. Fix forest index class - add default constructor.", indexClass), o_O);
-				}
+				parentIndex = createIndexInstance(indexClass);
+				parentIndex.setForestTreeType(forestTreeType);
+				parentIndex = this.saveNode(parentIndex);
 			}
 		}
 		//
 		if (index == null) {
-			try {
-				index = indexClass.newInstance();
-			} catch (InstantiationException | IllegalAccessException o_O) {
-				throw new IllegalArgumentException(MessageFormat.format("[{0}] does not support creating new instance. Fix forest index class - add default constructor.", indexClass), o_O);
-			}
+			index = createIndexInstance(indexClass);
 		}
 		// set parent index
 		index.setParent(parentIndex);
@@ -234,5 +226,18 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 		repository.clearIndexes(forestTreeType);
 		entityManager.flush();
 		entityManager.clear();
+	}
+	
+	/**
+	 * Create new index instance.
+	 * 
+	 * @return
+	 */
+	protected IX createIndexInstance(Class<? extends IX> indexClass) {
+		try {
+			return indexClass.newInstance();
+		} catch (InstantiationException | IllegalAccessException o_O) {
+			throw new IllegalArgumentException(MessageFormat.format("[{0}] does not support creating new instance. Fix forest index class - add default constructor.", indexClass), o_O);
+		}
 	}
 }

@@ -1,4 +1,4 @@
-package eu.bcvsolutions.forest.index.service;
+package eu.bcvsolutions.forest.index.service.impl;
 
 import eu.bcvsolutions.forest.index.entity.ForestIndexEntity;
 import eu.bcvsolutions.forest.index.entity.NodeContent;
