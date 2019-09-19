@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import javax.persistence.EntityManager;
 
+import org.springframework.cglib.core.CodeGenerationException;
+import org.springframework.cglib.core.ReflectUtils;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -241,11 +243,13 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 	 * @throws IllegalArgumentException when index class does not define default constructor.
 	 * @since 1.1.0
 	 */
+	@SuppressWarnings("unchecked")
 	protected IX createIndexInstance(Class<? extends IX> indexClass) {
 		try {
-			return indexClass.newInstance();
-		} catch (InstantiationException | IllegalAccessException o_O) {
-			throw new IllegalArgumentException(MessageFormat.format("[{0}] does not support creating new instance. Fix forest index class - add default constructor.", indexClass), o_O);
+			return (IX) ReflectUtils.newInstance(indexClass);
+		} catch (CodeGenerationException o_O) {
+			throw new IllegalArgumentException(MessageFormat.format("[{0}] does not support creating new instance. "
+					+ "Fix forest index class - add default constructor.", indexClass), o_O);
 		}
 	}
 }
