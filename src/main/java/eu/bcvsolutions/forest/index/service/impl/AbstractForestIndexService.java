@@ -1,6 +1,7 @@
 package eu.bcvsolutions.forest.index.service.impl;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.UUID;
@@ -243,8 +244,8 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 	 */
 	protected IX createIndexInstance(Class<? extends IX> indexClass) {
 		try {
-			return indexClass.newInstance();
-		} catch (InstantiationException | IllegalAccessException o_O) {
+			return indexClass.getDeclaredConstructor().newInstance();
+		} catch (IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException o_O) {
 			throw new IllegalArgumentException(MessageFormat.format("[{0}] does not support creating new instance. "
 					+ "Fix forest index class - add default constructor.", indexClass), o_O);
 		}
