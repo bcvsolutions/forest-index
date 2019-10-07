@@ -1,6 +1,7 @@
 package eu.bcvsolutions.forest.index.service.impl;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.UUID;
@@ -40,7 +41,9 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 		Assert.notNull(entityManager, "Entity manager is required.");
 		//
 		Class<?>[] genericTypes = GenericTypeResolver.resolveTypeArguments(getClass(), ForestIndexService.class);
-		indexClass = (Class<IX>)genericTypes[0];
+		//
+		Assert.notEmpty(genericTypes, "Wrong generic types is given, fix class definition");
+		indexClass = (Class<IX>) genericTypes[0];
 		//
 		this.repository = repository;
 		this.entityManager = entityManager;
@@ -81,32 +84,38 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 		entityManager.detach(forestIndex); // we need to load previous index value before flush
 		//
 		boolean parentChange = false;
-		Long previousParentID = null;
+		Long previousParentId = null;
 		Long lft = null;
 		Long rgt = null;
 		// evaluate parent change for re-index
 		if (forestIndex.getId() != null) {
-			previousParentID = repository.findParentId(forestIndex.getId());
+			previousParentId = repository.findParentId(forestIndex.getId());
 			lft = forestIndex.getLft();
 			rgt = forestIndex.getRgt();
 		}
-		if (!Objects.equals(previousParentID, forestIndex.getParent() == null ? null : forestIndex.getParent().getId())) {
+		if (!Objects.equals(previousParentId, forestIndex.getParent() == null ? null : forestIndex.getParent().getId())) {
 			forestIndex.setLft(null);
 			forestIndex.setRgt(null);
-			parentChange = true;
+			if (previousParentId != null) {
+				parentChange = true;
+			}
 		}
 		forestIndex = repository.save(forestIndex);
 		if (!parentChange) {
 			// index new node only
-			if (forestIndex.getId() == null || forestIndex.getLft() == null || forestIndex.getRgt() == null) {
+			if (forestIndex.getLft() == null || forestIndex.getRgt() == null) {
 				return countIndex(forestIndex);
 			}
-		} else { // index node, it parent changes
-			// drop moved sub tree indexes 
-			if (lft != null && rgt != null) {
-				repository.clearIndexes(forestIndex.getForestTreeType(), lft + 1, rgt - 1);
-				repository.afterDelete(forestIndex.getForestTreeType(), lft, rgt);
+		} else { // index node, if parent changes
+			// drop moved sub tree indexes
+			// when parent is changed, then indexes has to be given => tree is broken otherwise
+			if (lft == null || rgt == null) {
+				throw new IllegalArgumentException("Indexes has to be given (loaded) before parent index is changed"
+						+ " - it is required for a proper index rebuild.");
 			}
+			// drop moved sub tree indexes
+			repository.clearIndexes(forestIndex.getForestTreeType(), lft + 1, rgt - 1);
+			repository.afterDelete(forestIndex.getForestTreeType(), lft, rgt);
 			// create new indexes
 			forestIndex.setLft(null);
 			forestIndex.setRgt(null);
@@ -163,25 +172,17 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 				throw new UnsupportedOperationException(String.format("Parent [%s] doesn't have index - index parent at first.", parentContentId));
 			}
 		} else {
-			// generate syntetic root - we want to support more content roots
+			// generate synthetic root - we want to support more content roots
 			parentIndex = repository.findRoot(forestTreeType);
 			if (parentIndex == null) {
-				try {
-					parentIndex = indexClass.newInstance();
-					parentIndex.setForestTreeType(forestTreeType);
-					parentIndex = this.saveNode(parentIndex);
-				} catch (InstantiationException | IllegalAccessException o_O) {
-					throw new IllegalArgumentException(MessageFormat.format("[{0}] does not support creating new instance. Fix forest index class - add default constructor.", indexClass), o_O);
-				}
+				parentIndex = createIndexInstance(indexClass);
+				parentIndex.setForestTreeType(forestTreeType);
+				parentIndex = this.saveNode(parentIndex);
 			}
 		}
 		//
 		if (index == null) {
-			try {
-				index = indexClass.newInstance();
-			} catch (InstantiationException | IllegalAccessException o_O) {
-				throw new IllegalArgumentException(MessageFormat.format("[{0}] does not support creating new instance. Fix forest index class - add default constructor.", indexClass), o_O);
-			}
+			index = createIndexInstance(indexClass);
 		}
 		// set parent index
 		index.setParent(parentIndex);
@@ -232,5 +233,21 @@ public abstract class AbstractForestIndexService<IX extends ForestIndex<IX, CONT
 		repository.clearIndexes(forestTreeType);
 		entityManager.flush();
 		entityManager.clear();
+	}
+	
+	/**
+	 * Create new index instance.
+	 * 
+	 * @return
+	 * @throws IllegalArgumentException when index class does not define default constructor.
+	 * @since 1.1.0
+	 */
+	protected IX createIndexInstance(Class<? extends IX> indexClass) {
+		try {
+			return indexClass.getDeclaredConstructor().newInstance();
+		} catch (IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException | SecurityException o_O) {
+			throw new IllegalArgumentException(MessageFormat.format("[{0}] does not support creating new instance. "
+					+ "Fix forest index class - add default constructor.", indexClass), o_O);
+		}
 	}
 }

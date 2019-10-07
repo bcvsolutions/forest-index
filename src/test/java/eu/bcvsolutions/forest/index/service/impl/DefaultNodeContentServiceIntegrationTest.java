@@ -1,4 +1,4 @@
-package eu.bcvsolutions.forest.index.service;
+package eu.bcvsolutions.forest.index.service.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -164,7 +164,7 @@ public class DefaultNodeContentServiceIntegrationTest {
 	}
 	
 	@Test
-	public void deleteNode() {
+	public void testDeleteNode() {
 		createTestTree();
 		assertEquals(8, repository.count());
 		
