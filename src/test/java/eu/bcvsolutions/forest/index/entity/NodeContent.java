@@ -13,6 +13,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import eu.bcvsolutions.forest.index.domain.ForestContent;
 import eu.bcvsolutions.forest.index.domain.ForestIndex;
 
@@ -32,7 +34,8 @@ public class NodeContent implements ForestContent<ForestIndexEntity, Long> {
 	
 	@Id
 	@Column(name = "id", precision = 18, scale = 0)
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy= GenerationType.AUTO, generator="native")
+	@GenericGenerator(name = "native", strategy = "native")
 	private Long id;
 	
 	@Column(name = "name")
@@ -45,7 +48,12 @@ public class NodeContent implements ForestContent<ForestIndexEntity, Long> {
 	private NodeContent parent;	
 	
 	@ManyToOne(optional = true)
-	@JoinColumn(name = "id", referencedColumnName = "content_id", updatable = false, insertable = false, foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+	@JoinColumn(
+			name = "id", 
+			referencedColumnName = "content_id", 
+			updatable = false, 
+			insertable = false, 
+			foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
 	@SuppressWarnings("deprecation") // jpa FK constraint does not work in hibernate 4
 	@org.hibernate.annotations.ForeignKey( name = "none" )
 	private ForestIndexEntity forestIndex;

@@ -5,7 +5,7 @@
 
 	<groupId>eu.bcvsolutions.forest.index</groupId>
 	<artifactId>forest-index</artifactId>
-	<version>1.1.1</version>
+	<version>1.1.2</version>
 	<packaging>jar</packaging>
 
 	<name>Forest Index</name>
@@ -64,18 +64,41 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<repositories>
+		<repository>
+			<id>maven-centrals</id>
+			<url>https://repo1.maven.org/maven2/</url>
+		</repository>
+		<repository>
+			<id>nexus-public</id>
+			<url>https://nexus.bcvsolutions.eu/repository/maven-public/</url>
+		</repository>
+		<repository>
+			<id>nexus-public-releases</id>
+			<url>https://nexus.bcvsolutions.eu/repository/maven-public-releases/</url>
+		</repository>
+		<repository>
+			<id>maven-snapshots</id>
+			<url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
+		</repository>
+		<repository>
+			<id>jcenter-releases</id>
+			<url>http://jcenter.bintray.com</url>
+		</repository>
+	</repositories>
+
 	<distributionManagement>
 		<snapshotRepository>
 			<id>nexus</id>
 			<name>Nexus Staging repo</name>
 			<url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
 		</snapshotRepository>
-      <repository>
+        <repository>
 			<id>nexus</id>
 			<name>Nexus Staging repo</name>
 			<url>https://nexus.bcvsolutions.eu/repository/maven-public-releases/</url>
 		</repository>
-  </distributionManagement>
+    </distributionManagement>
 
 	<dependencies>
 		<dependency>
@@ -244,6 +267,20 @@
 					<groupId>org.postgresql</groupId>
 					<artifactId>postgresql</artifactId>
 					<scope>test</scope>
+				</dependency>
+			</dependencies>
+		</profile>
+
+		<profile>
+			<id>mssql</id>
+			<properties>
+				<spring.profiles.active>mssql</spring.profiles.active>
+			</properties>
+			<dependencies>
+				<dependency>
+				    <groupId>com.microsoft.sqlserver</groupId>
+				    <artifactId>sqljdbc4</artifactId>
+				    <version>4.0</version>
 				</dependency>
 			</dependencies>
 		</profile>
