@@ -41,13 +41,13 @@ public class IndexBuilderIntegrationTest {
 	@Test
 	public void testSaveTree() {
 		ForestIndexEntity oldroot = service.saveNode(new ForestIndexEntity(null));
-		a = service.saveNode(new ForestIndexEntity(oldroot));
-		b = service.saveNode(new ForestIndexEntity(oldroot));
-		service.saveNode(new ForestIndexEntity(a));
-		service.saveNode(new ForestIndexEntity(a));
-		ba = service.saveNode(new ForestIndexEntity(b));
-		bb = service.saveNode(new ForestIndexEntity(b));
-		ForestIndexEntity root = service.saveNode(new ForestIndexEntity(null));
+		a = service.saveNode(new ForestIndexEntity(null, oldroot, 1L));
+		b = service.saveNode(new ForestIndexEntity(null, oldroot, 2L));
+		service.saveNode(new ForestIndexEntity(null, a, 3L));
+		service.saveNode(new ForestIndexEntity(null, a, 4L));
+		ba = service.saveNode(new ForestIndexEntity(null, b, 5L));
+		bb = service.saveNode(new ForestIndexEntity(null, b, 6L));
+		ForestIndexEntity root = service.saveNode(new ForestIndexEntity(null, null, 7L));
 		
 		Assert.assertEquals(8, repository.count());
 		
@@ -280,7 +280,10 @@ public class IndexBuilderIntegrationTest {
 	private int generateChildren(int total, int counter, ForestIndexEntity parent) {
 		int childrenCount = r.nextInt(50) + 1;
 		for(int i = 0; i < childrenCount; i++) {
-			ForestIndexEntity node = service.saveNode(new ForestIndexEntity(parent));
+			ForestIndexEntity node = service.saveNode(new ForestIndexEntity(
+					null, 
+					parent, 
+					System.currentTimeMillis() + i + counter + (parent == null ? 0 : parent.getContentId()))); // content id UX is generated on mssql => "naive" rendom is needed
 			if(children.size() < 25) {
 				children.add(node);
 			}
