@@ -13,8 +13,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 
-import org.hibernate.annotations.GenericGenerator;
-
 import eu.bcvsolutions.forest.index.domain.ForestContent;
 import eu.bcvsolutions.forest.index.domain.ForestIndex;
 
@@ -34,8 +32,7 @@ public class NodeContent implements ForestContent<ForestIndexEntity, Long> {
 	
 	@Id
 	@Column(name = "id", precision = 18, scale = 0)
-	@GeneratedValue(strategy= GenerationType.AUTO, generator="native")
-	@GenericGenerator(name = "native", strategy = "native")
+	@GeneratedValue(strategy= GenerationType.AUTO)
 	private Long id;
 	
 	@Column(name = "name")

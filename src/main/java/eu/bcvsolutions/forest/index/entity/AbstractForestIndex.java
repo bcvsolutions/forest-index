@@ -16,7 +16,6 @@ import javax.validation.constraints.NotEmpty;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.hibernate.annotations.GenericGenerator;
 
 import eu.bcvsolutions.forest.index.domain.ForestIndex;
 
@@ -35,8 +34,7 @@ public abstract class AbstractForestIndex<IX extends ForestIndex<IX, CONTENT_ID>
 
 	@Id
 	@Column(name = "id", precision = 18, scale = 0)
-	@GeneratedValue(strategy= GenerationType.AUTO, generator="native")
-	@GenericGenerator(name = "native", strategy = "native")
+	@GeneratedValue(strategy= GenerationType.AUTO)
 	private Long id;
 	
 	@Column(name = "lft", precision = 18, scale = 0)
