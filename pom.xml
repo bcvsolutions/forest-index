@@ -149,26 +149,6 @@
 
 		<plugins>
 			<plugin>
-				<groupId>com.atlassian.maven.plugins</groupId>
-				<artifactId>maven-jgitflow-plugin</artifactId>
-				<version>1.0-m4.3</version>
-				<configuration>
-					<pushReleases>true</pushReleases>
-					<keepBranch>false</keepBranch>
-					<autoVersionSubmodules>true</autoVersionSubmodules>
-					<allowUntracked>true</allowUntracked>
-					<pullDevelop>true</pullDevelop>
-					<pullMaster>true</pullMaster>
-					<allowSnapshots>true</allowSnapshots>
-					<versionTagPrefix>v.</versionTagPrefix>
-					<flowInitContext>
-						<masterBranchName>master</masterBranchName>
-						<developBranchName>develop</developBranchName>
-					</flowInitContext>
-				</configuration>
-			</plugin>
-
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
