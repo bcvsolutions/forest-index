@@ -83,7 +83,7 @@
 		</repository>
 		<repository>
 			<id>jcenter-releases</id>
-			<url>http://jcenter.bintray.com</url>
+			<url>https://jcenter.bintray.com</url>
 		</repository>
 	</repositories>
 
