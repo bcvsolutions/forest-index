@@ -77,14 +77,6 @@
 			<id>nexus-public-releases</id>
 			<url>https://nexus.bcvsolutions.eu/repository/maven-public-releases/</url>
 		</repository>
-		<repository>
-			<id>maven-snapshots</id>
-			<url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
-		</repository>
-		<repository>
-			<id>jcenter-releases</id>
-			<url>http://jcenter.bintray.com</url>
-		</repository>
 	</repositories>
 
 	<distributionManagement>
@@ -93,7 +85,7 @@
 			<name>Nexus Staging repo</name>
 			<url>https://nexus.bcvsolutions.eu/repository/maven-snapshots/</url>
 		</snapshotRepository>
-        <repository>
+    <repository>
 			<id>nexus</id>
 			<name>Nexus Staging repo</name>
 			<url>https://nexus.bcvsolutions.eu/repository/maven-public-releases/</url>
@@ -151,6 +143,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
 				<configuration>
 					<source>${maven.compiler.source}</source>
 					<target>${maven.compiler.target}</target>
@@ -163,6 +156,7 @@
 			<plugin>
 				<groupId>org.bsc.maven</groupId>
 				<artifactId>maven-processor-plugin</artifactId>
+				<version>3.3.3</version>
 				<executions>
 					<execution>
 						<id>process</id>
@@ -181,6 +175,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.0.0</version>
 				<executions>
 					<execution>
 						<id>add-source</id>
