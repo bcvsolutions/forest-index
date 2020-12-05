@@ -12,57 +12,83 @@ import java.util.UUID;
  */
 public interface ForestIndex<IX extends ForestIndex<IX, CONTENT_ID>, CONTENT_ID extends Serializable> {
 	
-	static final String DEFAULT_TREE_TYPE = "default";
+	String DEFAULT_TREE_TYPE = "default";
 	
 	/**
-	 * Internal index identifier
+	 * Internal index identifier.
 	 * 
-	 * @return
+	 * @return identifier
 	 */
 	Long getId();
 	
 	/**
-	 * Reference to indexed content
+	 * Reference to indexed content.
 	 * 
-	 * @return
+	 * @return content identifier
 	 */
 	CONTENT_ID getContentId();
 	
+	/**
+	 * Reference to indexed content.
+	 * 
+	 * @param contentId content identifier
+	 */
 	void setContentId(CONTENT_ID contentId);
 	
 	/**
-	 * Parent index (node)
-	 * @return
+	 * Parent forest index (node).
+	 * 
+	 * @return parent index
 	 */
 	IX getParent();
 
+	/**
+	 * Parent forest index (node).
+	 * 
+	 * @param parent parent index
+	 */
 	void setParent(IX parent);
 	
 	/**
-	 * Tree type
+	 * Tree type.
 	 * 
-	 * @return
+	 * @return tree type
 	 */
 	String getForestTreeType();
 	
+	/**
+	 * Tree type.
+	 * 
+	 * @param treeType tree type
+	 */
 	void setForestTreeType(String treeType); 
 	
 	/**
-	 * Left node index
+	 * Left node index.
 	 * 
-	 * @return
+	 * @return lft index
 	 */
 	Long getLft();
 	
+	/**
+	 * Left node index.
+	 * 
+	 * @param lft lft index
+	 */
 	void setLft(Long lft);
 	
 	/**
-	 * Right node index
+	 * Right node index.
 	 * 
-	 * @return
+	 * @return rgt index
 	 */
 	Long getRgt();
 	
+	/**
+	 * Right node index.
+	 * 
+	 * @param rgt rgt index
+	 */
 	void setRgt(Long rgt);
 	
 	/**

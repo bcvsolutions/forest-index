@@ -19,7 +19,7 @@ import eu.bcvsolutions.forest.index.service.api.ForestIndexService;
 /**
  * Persists, builds, clears forest indexes 
  * 
- * - TODO: flush and clear is called manually - use new spring data version with @Modifying annotation (auto flush and auto clear) 
+ * - TODO: flush and clear is called manually - use @Modifying annotation (auto flush and auto clear) 
  * 
  * @author Radek Tomiška
  *
