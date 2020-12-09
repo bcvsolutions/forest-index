@@ -3,6 +3,8 @@ package eu.bcvsolutions.forest.index.entity;
 import org.junit.Assert;
 import org.junit.Test;
 
+import eu.bcvsolutions.forest.index.domain.ForestIndex;
+
 /**
  * Base forest index entity method tests
  * 
@@ -33,11 +35,11 @@ public class AbstractForestIndexUnitTest {
 		ForestIndexEntity forestOne = new ForestIndexEntity();
 		forestOne.setForestTreeType(null);
 		//
-		Assert.assertEquals(ForestIndexEntity.DEFAULT_TREE_TYPE, forestOne.getForestTreeType());
+		Assert.assertEquals(ForestIndex.DEFAULT_TREE_TYPE, forestOne.getForestTreeType());
 		//
 		forestOne = new ForestIndexEntity(null);
 		//
-		Assert.assertEquals(ForestIndexEntity.DEFAULT_TREE_TYPE, forestOne.getForestTreeType());
+		Assert.assertEquals(ForestIndex.DEFAULT_TREE_TYPE, forestOne.getForestTreeType());
 	}
 	
 	@Test
