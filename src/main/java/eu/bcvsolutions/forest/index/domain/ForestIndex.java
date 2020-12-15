@@ -12,7 +12,7 @@ import java.util.UUID;
  */
 public interface ForestIndex<IX extends ForestIndex<IX, CONTENT_ID>, CONTENT_ID extends Serializable> {
 	
-	String DEFAULT_TREE_TYPE = "default";
+	static final String DEFAULT_TREE_TYPE = "default";
 	
 	/**
 	 * Internal index identifier.
