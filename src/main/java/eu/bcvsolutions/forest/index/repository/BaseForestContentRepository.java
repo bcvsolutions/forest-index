@@ -14,7 +14,7 @@ import org.springframework.data.repository.query.Param;
 import eu.bcvsolutions.forest.index.domain.ForestContent;
 
 /**
- * Indexable entity repository
+ * Indexable entity repository:
  * * tree type is not supported 
  * 
  * @author Radek Tomiška

@@ -14,7 +14,7 @@ import org.springframework.data.repository.query.Param;
 import eu.bcvsolutions.forest.index.domain.ForestIndex;
 
 /**
- * Forest index repository
+ * Forest index repository.
  * 
  * @see {@link ForestIndex}
  * @author Radek Tomiška

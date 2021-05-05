@@ -28,21 +28,24 @@ public interface ForestContent<IX extends ForestIndex<IX, CONTENT_ID>, CONTENT_I
 	 */
 	CONTENT_ID getParentId();
 	
-//	void setParentId(CONTENT_ID parent);
-	
 	/**
-	 * Content index
+	 * Content forest index.
 	 * 
-	 * @return
+	 * @return index
 	 */
 	IX getForestIndex();
 
+	/**
+	 * Content forest index.
+	 * 
+	 * @param forestIndex index
+	 */
 	void setForestIndex(IX forestIndex);
 	
 	/**
-	 * Tree type
+	 * Tree type.
 	 * 
-	 * @return
+	 * @return content tree type
 	 */
 	String getForestTreeType();
 }

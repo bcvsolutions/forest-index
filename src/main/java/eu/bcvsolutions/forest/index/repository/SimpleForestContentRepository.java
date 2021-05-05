@@ -10,7 +10,7 @@ import org.springframework.data.repository.NoRepositoryBean;
 import eu.bcvsolutions.forest.index.domain.ForestContent;
 
 /**
- * Indexable entity repository
+ * Indexable entity repository:
  * * tree type is not supported
  * 
  * @author Radek Tomiška
@@ -23,7 +23,7 @@ public interface SimpleForestContentRepository<C extends ForestContent<?, CONTEN
 		extends BaseForestContentRepository<C, CONTENT_ID> {
 
 	/**
-	 * Finds roots
+	 * Finds roots.
 	 * 
 	 * @return
 	 */

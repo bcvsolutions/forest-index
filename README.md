@@ -47,7 +47,7 @@ Add maven dependency to project
 <dependency>
 	<groupId>eu.bcvsolutions.forest.index</groupId>
 	<artifactId>forest-index</artifactId>
-	<version>1.1.3</version>
+	<version>1.2.0</version>
 </dependency>
 ...
 ```

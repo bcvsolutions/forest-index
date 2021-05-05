@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import eu.bcvsolutions.forest.index.domain.ForestContent;
 
 /**
- * Indexable entity repository
+ * Indexable entity repository:
  * * tree type is supported
  * 
  * @author Radek Tomiška
@@ -24,7 +24,7 @@ public interface TypeableForestContentRepository<C extends ForestContent<?, CONT
 		extends BaseForestContentRepository<C, CONTENT_ID> {
 
 	/**
-	 * Finds roots
+	 * Finds roots.
 	 * 
 	 * @param forestTreeType
 	 * @return

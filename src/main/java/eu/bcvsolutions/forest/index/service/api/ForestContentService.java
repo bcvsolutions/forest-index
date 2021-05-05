@@ -60,7 +60,7 @@ public interface ForestContentService<C extends ForestContent<IX, CONTENT_ID>, I
 	IX deleteIndex(CONTENT_ID contentId);
 	
 	/**
-	 * Finds roots
+	 * Finds roots.
 	 * 
 	 * @param forestTreeType
 	 * @param pageable
@@ -69,7 +69,7 @@ public interface ForestContentService<C extends ForestContent<IX, CONTENT_ID>, I
 	Page<C> findRoots(String forestTreeType, Pageable pageable);
 	
 	/**
-	 * Finds direct children for given content
+	 * Finds direct children for given content.
 	 * 
 	 * @param contentId
 	 * @param pageable
@@ -87,7 +87,7 @@ public interface ForestContentService<C extends ForestContent<IX, CONTENT_ID>, I
 	Page<C> findAllChildren(CONTENT_ID contentId, Pageable pageable);
 	
 	/**
-	 * Returns all content parents
+	 * Returns all content parents.
 	 * 
 	 * @param content
 	 * @return
